@@ -4,18 +4,24 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.ArrayList;
-
-import static jdk.nashorn.internal.runtime.ECMAErrors.getMessage;
+import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
-    private long chat_id;
-    String lastMassege = "";
+    private final String BOT_USERNAME = "Test_Greek_Bot";
+    private final String BOT_TOKEN = "908393887:AAHu8SKsnTtlBOsxaJ-7Fsjkdmp-CZ8mpVM";
+    private static long chat_id;
+
     ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
     public Bot(DefaultBotOptions botOptions) {
@@ -25,28 +31,43 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         update.getUpdateId();
-        SendMessage sendMessage = new SendMessage().setChatId(update.getMessage().getChatId());
         chat_id = update.getMessage().getChatId();
+        SendMessage sendMessage = new SendMessage().setChatId(chat_id);
 
         String text = update.getMessage().getText();
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
-
         try {
-            sendMessage.setText(getMessage(text));
-            execute(sendMessage);
+            if (update.getMessage().getText().equals("Inline")) {
+                execute(sendInlineKeyBoardMessage(update.getMessage().getChatId()));
+            } else if (text.contains("+") || text.contains("-") || text.contains("/") || text.contains("*")) {
+                sendMessage.setText("Result: " + String.valueOf(getMsg(text)));
+                execute(sendMessage);
+            } else {
+                sendMessage.setText(getMessage(text));
+                execute(sendMessage);
+            }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
 
+    private float getMsg(String text) {
+        try {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+            return Float.parseFloat(engine.eval(text).toString());
+        } catch (ScriptException e) {
+            return 0;
+        }
+    }
+
     @Override
     public String getBotUsername() {
-        return "Test_Greek_Bot";
+        return BOT_USERNAME;
     }
 
     @Override
     public String getBotToken() {
-        return "908393887:AAHu8SKsnTtlBOsxaJ-7Fsjkdmp-CZ8mpVM";
+        return BOT_TOKEN;
     }
 
     public String getMessage(String msg) {
@@ -59,8 +80,6 @@ public class Bot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setOneTimeKeyboard(false);
 
         if (msg.equals("Hello") || msg.equals("Menu")) {
-            keyboard.clear();
-            keyboardFirstRow.clear();
             keyboardFirstRow.add("Popular");
             keyboardFirstRow.add("News");
             keyboardFirstRow.add("Helpful information");
@@ -68,8 +87,42 @@ public class Bot extends TelegramLongPollingBot {
             keyboard.add(keyboardSecondRow);
             replyKeyboardMarkup.setKeyboard(keyboard);
             return "Select...";
+        } else if (msg.equals("Popular")) {
+            keyboardFirstRow.add("Music");
+            keyboardFirstRow.add("Films");
+            keyboardFirstRow.add("Food");
+            keyboard.add(keyboardFirstRow);
+            keyboard.add(keyboardSecondRow);
+            replyKeyboardMarkup.setKeyboard(keyboard);
+            return "Popular";
         } else {
             return null;
         }
+    }
+
+    public static SendMessage sendInlineKeyBoardMessage(long chatId) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+        InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("Button1");
+        inlineKeyboardButton1.setCallbackData("Button \"Button1\" has been pressed");
+        inlineKeyboardButton2.setText("Button2");
+        inlineKeyboardButton2.setCallbackData("Button \"Button2\" has been pressed");
+
+        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
+
+        keyboardButtonsRow1.add(inlineKeyboardButton1);
+        keyboardButtonsRow1.add(new InlineKeyboardButton().setText("Button3").setCallbackData("CallFi4a"));
+        keyboardButtonsRow2.add(inlineKeyboardButton2);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        rowList.add(keyboardButtonsRow1);
+        rowList.add(keyboardButtonsRow2);
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(chatId).setText("Example").setReplyMarkup(inlineKeyboardMarkup);
     }
 }
