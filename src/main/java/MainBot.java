@@ -4,6 +4,7 @@ import org.telegram.telegrambots.meta.ApiContext;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.meta.generics.BotOptions;
 
 public class MainBot {
@@ -16,9 +17,12 @@ public class MainBot {
             botOptions.setProxyHost("127.0.0.1");
             botOptions.setProxyPort(9150);
             botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
-            telegramBotsApi.registerBot(new Bot(botOptions));
-        } catch (TelegramApiException e){
+            //telegramBotsApi.registerBot(new Bot(botOptions));
+            telegramBotsApi.registerBot(new HelloAbilityBot());
+        } catch (TelegramApiRequestException e){
             e.printStackTrace();
+            //BotLogger.error("Oops, something went wrong while registering bot", e);
+            BotLogger.error("Oops, something went wrong while registering bot", e);
         }
 
 
