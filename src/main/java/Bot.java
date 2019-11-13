@@ -1,3 +1,8 @@
+import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.abilitybots.api.objects.Locality;
+import org.telegram.abilitybots.api.objects.Privacy;
+import org.telegram.abilitybots.api.sender.MessageSender;
+import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,15 +22,19 @@ import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
-    private final String BOT_USERNAME = "Test_Greek_Bot";
-    private final String BOT_TOKEN = "908393887:AAHu8SKsnTtlBOsxaJ-7Fsjkdmp-CZ8mpVM";
+    private final String BOT_USERNAME = "Chat_Analyzer_bot";
+    private final String BOT_TOKEN = System.getenv("TOKEN");
     private static long chat_id;
+
+    protected MessageSender sender;
+    protected SilentSender silent;
 
     ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
     public Bot(DefaultBotOptions botOptions) {
         super(botOptions);
     }
+
 
     @Override
     public void onUpdateReceived(Update update) {
