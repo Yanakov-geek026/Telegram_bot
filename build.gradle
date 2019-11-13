@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'TelegramBot'
-version '1.1-SNAPSHOT'
+version '1.2-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -14,4 +14,6 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'org.telegram', name: 'telegrambots', version: '4.4.0.1'
+    compile group: 'org.telegram', name:'Bots', version: '4.4.0.1'
+    compile group: 'org.telegram', name:'telegrambots-abilities', version: '4.4.0.1'
 }

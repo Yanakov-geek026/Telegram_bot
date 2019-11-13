@@ -26,15 +26,11 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_TOKEN = System.getenv("TOKEN");
     private static long chat_id;
 
-    protected MessageSender sender;
-    protected SilentSender silent;
-
     ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
     public Bot(DefaultBotOptions botOptions) {
         super(botOptions);
     }
-
 
     @Override
     public void onUpdateReceived(Update update) {

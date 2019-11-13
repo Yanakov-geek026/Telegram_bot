@@ -13,10 +13,10 @@ public class MainBot {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
             DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
-            botOptions.setProxyHost("127.0.0.1");
-            botOptions.setProxyPort(9150);
-            botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
-            telegramBotsApi.registerBot(new Bot(botOptions));
+//            botOptions.setProxyHost("127.0.0.1");
+//            botOptions.setProxyPort(9150);
+//            botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
+            telegramBotsApi.registerBot(new HelloAbilityBot(botOptions));
         } catch (TelegramApiException e){
             e.printStackTrace();
         }
