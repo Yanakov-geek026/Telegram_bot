@@ -17,5 +17,5 @@ public interface Analyzer {
         return new CheckLinkText();
     }
 
-    FilterType TextAnalyzer (String text);
+    FilterType TextAnalyzer(String text);
 }

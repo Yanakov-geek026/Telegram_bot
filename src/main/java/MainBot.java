@@ -14,12 +14,9 @@ public class MainBot {
             botOptions.setProxyHost("127.0.0.1");
             botOptions.setProxyPort(9150);
             botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
-//            telegramBotsApi.registerBot(new HelloAbilityBot(botOptions));
             telegramBotsApi.registerBot(new Bot(botOptions));
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-
-
     }
 }

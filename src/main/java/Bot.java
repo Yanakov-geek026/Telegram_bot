@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
@@ -27,14 +27,15 @@ public class Bot extends TelegramLongPollingBot {
         long chat_id = update.getMessage().getChatId();
         SendMessage message = new SendMessage().setChatId(chat_id);
         regulations();
-        try {
-            if (update.getMessage().getText().equals("regulation")) {
-               execute(message.setText(showRegulations()));
-            } else {
-                if (update.hasMessage() && update.getMessage().hasText()) {
-                    message.setText("this text");
-                    execute(message);
 
+        try {
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                message.setText("this text");
+                execute(message);
+
+                if (update.getMessage().getText().equals("regulation")) {
+                    execute(message.setText(showRegulations()));
+                } else {
                     String message_text = update.getMessage().getText();
                     FilterType analyzerMessage = analyzerMessage(message_text);
                     if (analyzerMessage != FilterType.GOOD) {
@@ -47,10 +48,10 @@ public class Bot extends TelegramLongPollingBot {
                         message.setText("Message was deleted due to non-compliance. Cause: " + analyzerMessage);
                         execute(deleteMessage);
                         execute(message);
+                    } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+                        message.setText("this Photo");
+                        execute(message);
                     }
-                } else {
-                    message.setText("this Photo");
-                    execute(message);
                 }
             }
         } catch (TelegramApiException e) {
@@ -59,18 +60,13 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private FilterType analyzerMessage(String message_text) {
-        Analyzer[] manager = new Analyzer[]{Analyzer.smileCheckTextAnalyzer(),
-                Analyzer.longCheckTextAnalyzer(20), Analyzer.phoneNumberCheckTextAnalyzer(),
-                Analyzer.linkCheckTextAnalyzer()};
+        List<Analyzer> manager = new ArrayList<>();
+        manager.add(Analyzer.smileCheckTextAnalyzer());
+        manager.add(Analyzer.longCheckTextAnalyzer(20));
+        manager.add(Analyzer.phoneNumberCheckTextAnalyzer());
+        manager.add(Analyzer.linkCheckTextAnalyzer());
 
-        for (Analyzer analyzer : manager) {
-            FilterType answer = analyzer.TextAnalyzer(message_text);
-
-            if (answer != FilterType.GOOD) {
-                return answer;
-            }
-        }
-        return FilterType.GOOD;
+        return new FilterManager(manager).analyzer(message_text);
     }
 
     private void regulations() {
@@ -88,12 +84,11 @@ public class Bot extends TelegramLongPollingBot {
 
     private String showRegulations() {
         String regulation = "You can not use emoticons (Cause USE_SMILE)" +
-                        "\n" + "Cannot send phone number (Cause PHONE_NUMBER)" +
-                        "\n" + "Cannot send message more than 20 characters (Cause LONG_TEXT)" +
-                        "\n" + "Do not poison various links(Cause REPOST_LINK)";
+                "\n" + "Cannot send phone number (Cause PHONE_NUMBER)" +
+                "\n" + "Cannot send message more than 20 characters (Cause LONG_TEXT)" +
+                "\n" + "Do not poison various links(Cause REPOST_LINK)";
         return regulation;
     }
-
 
     @Override
     public String getBotUsername() {
