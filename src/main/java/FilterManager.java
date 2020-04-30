@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class FilterManager {
+public class  FilterManager {
 
     private final List<Analyzer> filterManager;
 
