@@ -1,7 +1,7 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CheckLinkText implements Analyzer {
+public class  CheckLinkText implements AnalyzerText {
 
     @Override
     public FilterType TextAnalyzer(String text) {

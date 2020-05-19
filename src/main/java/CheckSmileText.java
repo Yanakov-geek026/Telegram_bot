@@ -1,5 +1,5 @@
 
-public class CheckSmileText implements Analyzer {
+public class CheckSmileText implements AnalyzerText {
 
     private final String[] smiles = {":)", ":(", "))", ":/", ":|"};
 

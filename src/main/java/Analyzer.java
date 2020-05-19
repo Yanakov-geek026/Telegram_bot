@@ -1,21 +1,9 @@
 
-public interface Analyzer {
+public interface Analyzer<T> {
 
-    static Analyzer smileCheckTextAnalyzer() {
-        return new CheckSmileText();
-    }
+    boolean check(T content);
 
-    static Analyzer longCheckTextAnalyzer(int textSize) {
-        return new CheckLongText(textSize);
-    }
+    TypeMessage getContentType();
 
-    static Analyzer phoneNumberCheckTextAnalyzer() {
-        return new CheckPhoneNumberText();
-    }
-
-    static Analyzer linkCheckTextAnalyzer() {
-        return new CheckLinkText();
-    }
-
-    FilterType TextAnalyzer(String text);
+    FilterType getFilterType();
 }

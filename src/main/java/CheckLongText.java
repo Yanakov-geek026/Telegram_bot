@@ -1,5 +1,5 @@
 
-public class CheckLongText implements Analyzer {
+public class CheckLongText implements AnalyzerText {
 
     private final int textSize;
 

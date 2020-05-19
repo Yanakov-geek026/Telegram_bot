@@ -1,7 +1,7 @@
     import java.util.regex.Matcher;
     import java.util.regex.Pattern;
 
-    public class CheckPhoneNumberText implements Analyzer {
+    public class CheckPhoneNumberText implements AnalyzerText {
 
         @Override
         public FilterType TextAnalyzer(String text) {
