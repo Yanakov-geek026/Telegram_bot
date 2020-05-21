@@ -5,5 +5,5 @@ public interface Analyzer<T> {
 
     TypeMessage getContentType();
 
-    FilterType getFilterType();
+    FilterType getFilterType(T message);
 }

@@ -1,5 +1,6 @@
+import java.util.List;
 
-public interface AnalyzerText extends Analyzer {
+public interface AnalyzerText extends Analyzer<String>{
 
     AnalyzerText smileCheckTextAnalyzer();
 
@@ -9,5 +10,15 @@ public interface AnalyzerText extends Analyzer {
 
     AnalyzerText linkCheckTextAnalyzer();
 
-    FilterType TextAnalyzer(String text);
+    default FilterType TextAnalyzer(String text, List<AnalyzerText> analyzerText) {
+
+        for (Analyzer analyzer : analyzerText) {
+            FilterType answer = analyzer.getFilterType(text);
+
+            if (answer != FilterType.GOOD) {
+                return answer;
+            }
+        }
+        return FilterType.GOOD;
+    }
 }

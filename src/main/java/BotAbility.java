@@ -64,13 +64,13 @@ public class BotAbility implements AbilityExtension {
     }
 
     private FilterType analyzerMassage(String messageText) {
-        List<Analyzer> manager = new ArrayList<>();
-        manager.add()
-//        manager.add(Analyzer.linkCheckTextAnalyzer());
-//        manager.add(Analyzer.longCheckTextAnalyzer(20));
-//        manager.add(Analyzer.phoneNumberCheckTextAnalyzer());
-//        manager.add(Analyzer.smileCheckTextAnalyzer());
+        List<AnalyzerText> manager = new ArrayList<>();
+        RulesText rulesText = new RulesText();
+        manager.add(rulesText.linkCheckTextAnalyzer());
+        manager.add(rulesText.longCheckTextAnalyzer(20));
+        manager.add(rulesText.phoneNumberCheckTextAnalyzer());
+        manager.add(rulesText.smileCheckTextAnalyzer());
 
-        return new FilterManager(manager).analyzer(messageText);
+        return rulesText.TextFilter(messageText, manager);
     }
 }
