@@ -3,8 +3,9 @@ import org.telegram.abilitybots.api.db.DBContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+//--------------------------------Временный класс------------------------------
 public class Rules {
+
     private Map<Long, List<Analyzer>> rulesChat;
     private Analyzer rulesAnalyzer;
     private long chatId;
@@ -20,17 +21,18 @@ public class Rules {
         //rulesChat.put(chatId, createRules());
     }
 
-    private List<Analyzer> createRules() {
-        List<Analyzer> rules = new ArrayList<>();
-        rules.add(Analyzer.linkCheckTextAnalyzer());
-        rules.add(Analyzer.longCheckTextAnalyzer(20));
-        rules.add(Analyzer.phoneNumberCheckTextAnalyzer());
-        rules.add(Analyzer.smileCheckTextAnalyzer());
+        private List<Analyzer> createRules() {
+            List<Analyzer> rules = new ArrayList<>();
 
-        return rules;
+//        rules.add(Analyzer.linkCheckTextAnalyzer());
+//        rules.add(Analyzer.longCheckTextAnalyzer(20));
+//        rules.add(Analyzer.phoneNumberCheckTextAnalyzer());
+//        rules.add(Analyzer.smileCheckTextAnalyzer());
+
+            return rules;
+        }
+
+//        public FilterType analyzerMessage(String messageText) {
+//        return new FilterManager(rulesChat.get(chatId)).analyzer(messageText);
     }
 
-    public FilterType analyzerMessage(String messageText) {
-        return new FilterManager(rulesChat.get(chatId)).analyzer(messageText);
-    }
-}

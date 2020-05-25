@@ -1,21 +1,20 @@
+import java.util.List;
 
-public interface Analyzer {
+public interface Analyzer<T> {
 
-    static Analyzer smileCheckTextAnalyzer() {
-        return new CheckSmileText();
+    boolean check(T content);
+
+    TypeMessage getContentType();
+
+    FilterType getFilterType();
+
+    static <T> FilterType analyze(T message, List<Analyzer<T>> rules) {
+
+        for (Analyzer<T> analyzer : rules) {
+            if (analyzer.check(message)) {
+                return analyzer.getFilterType();
+            }
+        }
+        return FilterType.GOOD;
     }
-
-    static Analyzer longCheckTextAnalyzer(int textSize) {
-        return new CheckLongText(textSize);
-    }
-
-    static Analyzer phoneNumberCheckTextAnalyzer() {
-        return new CheckPhoneNumberText();
-    }
-
-    static Analyzer linkCheckTextAnalyzer() {
-        return new CheckLinkText();
-    }
-
-    FilterType TextAnalyzer(String text);
 }
