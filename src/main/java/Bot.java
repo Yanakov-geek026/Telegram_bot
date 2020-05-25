@@ -19,4 +19,12 @@ public class Bot extends AbilityBot {
     public int creatorId() {
         return 0;
     }
+
+    public String getUsername() {
+        return BOT_USERNAME;
+    }
+
+    public String getToken() {
+        return BOT_TOKEN;
+    }
 }

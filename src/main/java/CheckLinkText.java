@@ -1,20 +1,17 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-public class  CheckLinkText implements AnalyzerText {
+public class CheckLinkText implements Analyzer {
 
     @Override
-    public boolean check(String message) {
+    public FilterType TextAnalyzer(String text) {
         String regexLink = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         Pattern pattern = Pattern.compile(regexLink);
-        Matcher method = pattern.matcher(message);
+        Matcher method = pattern.matcher(text);
 
-        return method.find();
-    }
-
-    @Override
-    public FilterType getFilterType() {
-        return FilterType.REPOST_LINK;
+        while (method.find()) {
+            return FilterType.REPOST_LINK;
+        }
+        return FilterType.GOOD;
     }
 }

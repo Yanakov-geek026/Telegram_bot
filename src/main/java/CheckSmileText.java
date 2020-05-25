@@ -1,19 +1,15 @@
-public class CheckSmileText implements AnalyzerText {
+
+public class CheckSmileText implements Analyzer {
 
     private final String[] smiles = {":)", ":(", "))", ":/", ":|"};
 
     @Override
-    public boolean check(String message) {
+    public FilterType TextAnalyzer(String text) {
         for (String s : smiles) {
-            if (message.contains(s)) {
-                return true;
+            if (text.contains(s)) {
+                return FilterType.USE_SMILE;
             }
         }
-        return false;
-    }
-
-    @Override
-    public FilterType getFilterType() {
-        return FilterType.USE_SMILE;
+        return FilterType.GOOD;
     }
 }
