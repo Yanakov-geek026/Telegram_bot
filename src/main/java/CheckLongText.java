@@ -1,5 +1,4 @@
-
-public class CheckLongText implements Analyzer<String> {
+public class CheckLongText implements AnalyzerText {
 
     private final int textSize;
 
@@ -8,20 +7,12 @@ public class CheckLongText implements Analyzer<String> {
     }
 
     @Override
-    public boolean check(String content) {
-        return false;
+    public boolean check(String message) {
+        return message.length() > textSize;
     }
 
     @Override
-    public TypeMessage getContentType() {
-        return null;
-    }
-
-    @Override
-    public FilterType getFilterType(String message) {
-        if (message.length() > textSize) {
-            return FilterType.LONG_TEXT;
-        }
-        return FilterType.GOOD;
+    public FilterType getFilterType() {
+        return FilterType.LONG_TEXT;
     }
 }

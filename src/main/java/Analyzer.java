@@ -1,3 +1,4 @@
+import java.util.List;
 
 public interface Analyzer<T> {
 
@@ -5,5 +6,15 @@ public interface Analyzer<T> {
 
     TypeMessage getContentType();
 
-    FilterType getFilterType(T message);
+    FilterType getFilterType();
+
+    static <T> FilterType analyze(T message, List<Analyzer<T>> rules) {
+
+        for (Analyzer<T> analyzer : rules) {
+            if (analyzer.check(message)) {
+                return analyzer.getFilterType();
+            }
+        }
+        return FilterType.GOOD;
+    }
 }
