@@ -39,12 +39,9 @@ public class BotAbility implements AbilityExtension {
         return Reply.of(update -> {
             long chatId = update.getMessage().getChatId();
             //Rules rules = new Rules(db, chatId);
-            RulesText rules = new RulesText();
             String massageText = update.getMessage().getText();
             //FilterType analyzerMessage = rules.analyzerMessage(massageText);
-//            FilterType analyzerMessage = analyzerMassage(massageText);
-            FilterType analyzerMessage = Analyzer.analyze(massageText, rules.createRules());
-
+            FilterType analyzerMessage = analyzerMassage(massageText);
             if (analyzerMessage != FilterType.GOOD) {
                 int messageId = update.getMessage().getMessageId();
 
@@ -67,8 +64,12 @@ public class BotAbility implements AbilityExtension {
     }
 
     private FilterType analyzerMassage(String messageText) {
-        List<AnalyzerText> manager = new ArrayList<>();
+        List<Analyzer> manager = new ArrayList<>();
+        manager.add(Analyzer.linkCheckTextAnalyzer());
+        manager.add(Analyzer.longCheckTextAnalyzer(20));
+        manager.add(Analyzer.phoneNumberCheckTextAnalyzer());
+        manager.add(Analyzer.smileCheckTextAnalyzer());
 
-        return null;
+        return new FilterManager(manager).analyzer(messageText);
     }
 }
