@@ -1,4 +1,3 @@
-
 public enum FilterType {
     USE_SMILE,
     LONG_TEXT,
