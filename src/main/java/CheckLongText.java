@@ -2,7 +2,7 @@ public class CheckLongText implements AnalyzerText {
 
     private final int textSize;
 
-    public CheckLongText(int textSize) {
+    CheckLongText(int textSize) {
         this.textSize = textSize;
     }
 

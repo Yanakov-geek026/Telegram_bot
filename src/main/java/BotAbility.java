@@ -1,3 +1,4 @@
+import javafx.css.Rule;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
@@ -38,12 +39,13 @@ public class BotAbility implements AbilityExtension {
     public Reply message() {
         return Reply.of(update -> {
             long chatId = update.getMessage().getChatId();
-            //Rules rules = new Rules(db, chatId);
-            RulesText rules = new RulesText();
-            String massageText = update.getMessage().getText();
-            //FilterType analyzerMessage = rules.analyzerMessage(massageText);
-//            FilterType analyzerMessage = analyzerMassage(massageText);
-            FilterType analyzerMessage = Analyzer.analyze(massageText, rules.createRules());
+            String messageText = update.getMessage().getText();
+
+//            FilterType analyzerMessage = analyzerMassage(messageText, chatId);
+
+            FilterType analyzerMessage = FilterType.GOOD;
+            Rules rules = new Rules(db, chatId);
+            silentSender.send(rules.getSizeRules(), chatId);
 
             if (analyzerMessage != FilterType.GOOD) {
                 int messageId = update.getMessage().getMessageId();
@@ -66,9 +68,8 @@ public class BotAbility implements AbilityExtension {
         }, Flag.PHOTO);
     }
 
-    private FilterType analyzerMassage(String messageText) {
-        List<AnalyzerText> manager = new ArrayList<>();
-
-        return null;
+    private FilterType analyzerMassage(String messageText, long chatId) {
+        Rules rules = new Rules(db, chatId);
+        return Analyzer.analyze(messageText, rules.getRules());
     }
 }
