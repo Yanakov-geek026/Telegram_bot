@@ -42,13 +42,17 @@ public class Rules {
             return String.valueOf(rulesChat.keySet());
         }
 
-        public String remove() {
+        // Удалить бд для определенного чата
+        public void remove() {
             rulesChat.remove(chatId);
-            return "remove";
         }
 
         public void addRulesCheckFindWordText(String word) {
-            rulesChat.get(chatId).add(new CheckFindWordText(word));
+            List<Analyzer<String>> listRule = rulesChat.get(chatId);
+            remove();
+            listRule.add(new CheckFindWordText(word));
+            rulesChat.put(chatId, listRule);
+            //rulesChat.get(chatId).add(new CheckFindWordText(word));
         }
     }
 

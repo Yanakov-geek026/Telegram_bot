@@ -4,6 +4,7 @@ import analyzerBot.AnalyzerInterface.Analyzer;
 import analyzerBot.Rule.Rules;
 import analyzerBot.Rule.RulesManual;
 import analyzerBot.Types.FilterType;
+import javafx.css.Rule;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
@@ -33,7 +34,6 @@ public class BotAbility implements AbilityExtension {
                 .action(ctx -> {
                     String regulations = "";
                     RulesManual rulesManual = new RulesManual(db, ctx.chatId());
-                    rulesManual.remove();
                     for (Map.Entry<FilterType, String> manual : rulesManual.getManualRules().entrySet()) {
                         regulations += manual.getValue() + " (" + manual.getKey() + ") \n";
                     }
@@ -45,15 +45,35 @@ public class BotAbility implements AbilityExtension {
     public Ability addRules() {
         return Ability
                 .builder()
-                .name("addRules")
+                .name("addrules")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+                    Rules rules = new Rules(db, ctx.chatId());
+//                    rulesManual.remove();
+                    rulesManual.addRules(rules, ctx.firstArg());
+//                    String rules = rulesManual.getSizeRules();
+                    silentSender.send("Rule added", ctx.chatId());
+//                    silentSender.send(rules, ctx.chatId());
+                })
+                .build();
+    }
+    // Удалить все правила
+    public Ability clearRules() {
+        return Ability
+                .builder()
+                .name("clear")
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    String hello = "hello";
                     RulesManual rulesManual = new RulesManual(db, ctx.chatId());
-                    rulesManual.addRules(db, ctx.firstArg());
-                    silentSender.send(hello, ctx.chatId());
+                    Rules rules = new Rules(db, ctx.chatId());
+                    rules.remove();
+                    rulesManual.remove();
+                    silentSender.send("Rules cleared", ctx.chatId());
                 })
                 .build();
     }

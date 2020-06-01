@@ -34,6 +34,7 @@ public class RulesManual {
         return manualRules.get(chatId);
     }
 
+    // Удалить бд для определенного чата
     public void remove() {
         manualRules.remove(chatId);
     }
@@ -43,8 +44,16 @@ public class RulesManual {
         return String.valueOf(manualRules.keySet());
     }
 
-    public void addRules(DBContext db, String description) {
-        Rules rules = new Rules(db, chatId);
+    public void addRules(Rules rules, String description) {
+        Map<FilterType, String> manual = manualRules.get(chatId);
+        if (!manual.containsKey(FilterType.FORBIDDEN_WORD)) {
+            manual.put(FilterType.FORBIDDEN_WORD, "You can't use word a ( " + description + " ) ");
+        } else {
+            String valueManual = manual.get(FilterType.FORBIDDEN_WORD) + ", ( " + description + " ) " ;
+            manual.put(FilterType.FORBIDDEN_WORD, valueManual);
+        }
+        remove();
+        manualRules.put(chatId, manual);
         rules.addRulesCheckFindWordText(description);
     }
 }
