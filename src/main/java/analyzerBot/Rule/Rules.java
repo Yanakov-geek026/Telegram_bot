@@ -1,6 +1,12 @@
+package analyzerBot.Rule;
+
+import analyzerBot.AnalyzerInterface.Analyzer;
+import analyzerBot.CheckText.CheckFindWordText;
+import analyzerBot.CheckText.CheckLongText;
+import analyzerBot.CheckText.CheckPhoneNumberOrLink;
+import analyzerBot.CheckText.CheckSmileText;
 import org.telegram.abilitybots.api.db.DBContext;
 
-import java.io.Serializable;
 import java.util.*;
 
 public class Rules {
@@ -8,9 +14,9 @@ public class Rules {
     private Map<Long, List<Analyzer<String>>> rulesChat;
     private long chatId;
 
-    Rules(DBContext db, long chatId) {
+    public Rules(DBContext db, long chatId) {
 
-        rulesChat = db.getMap("ChatRules");
+        rulesChat = db.getMap("ChatRules3");
         this.chatId = chatId;
 
         if (rulesChat.isEmpty() || !rulesChat.containsKey(chatId)) {
@@ -21,9 +27,9 @@ public class Rules {
         private List<Analyzer<String>> createRules() {
             List<Analyzer<String>> rules = new ArrayList<>();
             rules.add(new CheckLongText(20));
-            rules.add(new CheckPhoneNumberText());
-            rules.add(new CheckLinkText());
+            rules.add(new CheckPhoneNumberOrLink());
             rules.add(new CheckSmileText());
+
             return rules;
         }
 
@@ -31,15 +37,18 @@ public class Rules {
             return rulesChat.get(chatId);
         }
 
+        // Класс для проверки кол-во чатов в бд
         public String getSizeRules() {
-//            int size = rulesChat.size();
-//            return Integer.toString(size);
             return String.valueOf(rulesChat.keySet());
         }
 
-        public String remove(long chatId) {
+        public String remove() {
             rulesChat.remove(chatId);
             return "remove";
+        }
+
+        public void addRulesCheckFindWordText(String word) {
+            rulesChat.get(chatId).add(new CheckFindWordText(word));
         }
     }
 

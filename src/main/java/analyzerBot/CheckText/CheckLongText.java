@@ -1,8 +1,15 @@
-public class CheckLongText implements AnalyzerText {
+package analyzerBot.CheckText;
+
+import analyzerBot.AnalyzerInterface.AnalyzerText;
+import analyzerBot.Types.FilterType;
+
+import java.io.Serializable;
+
+public class CheckLongText implements AnalyzerText, Serializable {
 
     private final int textSize;
 
-    CheckLongText(int textSize) {
+    public CheckLongText(int textSize) {
         this.textSize = textSize;
     }
 

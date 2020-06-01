@@ -1,3 +1,8 @@
+package analyzerBot.AnalyzerInterface;
+
+import analyzerBot.Types.FilterType;
+import analyzerBot.Types.TypeMessage;
+
 import java.util.List;
 
 public interface Analyzer<T> {

@@ -1,4 +1,11 @@
-public class CheckSmileText implements AnalyzerText {
+package analyzerBot.CheckText;
+
+import analyzerBot.AnalyzerInterface.AnalyzerText;
+import analyzerBot.Types.FilterType;
+
+import java.io.Serializable;
+
+public class CheckSmileText implements AnalyzerText, Serializable {
 
     private final String[] smiles = {":)", ":(", "))", ":/", ":|"};
 

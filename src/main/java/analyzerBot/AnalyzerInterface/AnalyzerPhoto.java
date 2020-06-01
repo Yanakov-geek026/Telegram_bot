@@ -1,3 +1,6 @@
+package analyzerBot.AnalyzerInterface;
+
+import analyzerBot.Types.TypeMessage;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
 public interface AnalyzerPhoto extends Analyzer<PhotoSize> {

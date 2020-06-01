@@ -1,4 +1,9 @@
-import javafx.css.Rule;
+package analyzerBot.BotMain;
+
+import analyzerBot.AnalyzerInterface.Analyzer;
+import analyzerBot.Rule.Rules;
+import analyzerBot.Rule.RulesManual;
+import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
@@ -6,8 +11,7 @@ import org.telegram.abilitybots.api.util.AbilityExtension;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class BotAbility implements AbilityExtension {
     private SilentSender silentSender;
@@ -27,11 +31,29 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    String regulations = "You can not use emoticons (Cause USE_SMILE)" +
-                            "\n" + "Cannot send phone number (Cause PHONE_NUMBER)" +
-                            "\n" + "Cannot send message more than 20 characters (Cause LONG_TEXT)" +
-                            "\n" + "Do not send various links(Cause REPOST_LINK)";
+                    String regulations = "";
+                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+                    rulesManual.remove();
+                    for (Map.Entry<FilterType, String> manual : rulesManual.getManualRules().entrySet()) {
+                        regulations += manual.getValue() + " (" + manual.getKey() + ") \n";
+                    }
                     silentSender.send(regulations, ctx.chatId());
+                })
+                .build();
+    }
+
+    public Ability addRules() {
+        return Ability
+                .builder()
+                .name("addRules")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(0)
+                .action(ctx -> {
+                    String hello = "hello";
+                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+                    rulesManual.addRules(db, ctx.firstArg());
+                    silentSender.send(hello, ctx.chatId());
                 })
                 .build();
     }
@@ -41,11 +63,12 @@ public class BotAbility implements AbilityExtension {
             long chatId = update.getMessage().getChatId();
             String messageText = update.getMessage().getText();
 
-//            FilterType analyzerMessage = analyzerMassage(messageText, chatId);
+            FilterType analyzerMessage = analyzerMassage(messageText, chatId);
 
-            FilterType analyzerMessage = FilterType.GOOD;
-            Rules rules = new Rules(db, chatId);
-            silentSender.send(rules.getSizeRules(), chatId);
+//            analyzerBot.Types.FilterType analyzerMessage = analyzerBot.Types.FilterType.GOOD;
+//            analyzerBot.Rule.Rules rules = new analyzerBot.Rule.Rules(db, chatId);
+//            rules.remove();
+//            silentSender.send(rules.getSizeRules(), chatId);
 
             if (analyzerMessage != FilterType.GOOD) {
                 int messageId = update.getMessage().getMessageId();
