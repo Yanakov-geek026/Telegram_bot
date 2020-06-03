@@ -24,6 +24,7 @@ public class BotAbility implements AbilityExtension {
         this.db = db;
     }
 
+    // Вывод всех текущих правил в чате
     public Ability regulations() {
         return Ability
                 .builder()
@@ -42,24 +43,40 @@ public class BotAbility implements AbilityExtension {
                 .build();
     }
 
-    public Ability addRules() {
+    // Добавление запрещенного слова
+    public Ability addRulesForbiddenWord() {
         return Ability
                 .builder()
-                .name("addrules")
+                .name("addforbiddenword")
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
                     RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
-//                    rulesManual.remove();
-                    rulesManual.addRules(rules, ctx.firstArg());
-//                    String rules = rulesManual.getSizeRules();
+                    rulesManual.addRulesForbiddenWord(rules, ctx.firstArg());
                     silentSender.send("Rule added", ctx.chatId());
-//                    silentSender.send(rules, ctx.chatId());
                 })
                 .build();
     }
+
+    // Отключение выбранного правила
+    public Ability offRule() {
+        return Ability
+                .builder()
+                .name("offrule")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+                    Rules rules = new Rules(db, ctx.chatId());
+                    rulesManual.offRule(rules, Integer.parseInt(ctx.firstArg()));
+                    silentSender.send("Rule offed", ctx.chatId());
+                })
+                .build();
+    }
+
     // Удалить все правила
     public Ability clearRules() {
         return Ability
@@ -78,6 +95,7 @@ public class BotAbility implements AbilityExtension {
                 .build();
     }
 
+    // Анализ текстовых сообщений на нарушения правил
     public Reply message() {
         return Reply.of(update -> {
             long chatId = update.getMessage().getChatId();
@@ -104,6 +122,7 @@ public class BotAbility implements AbilityExtension {
         }, Flag.TEXT, update -> !update.getMessage().getText().contains("/"));
     }
 
+    // Анализ фото на нарушения правил
     public Reply photo() {
         return Reply.of(update -> {
             silentSender.send("Photo", update.getMessage().getChatId());

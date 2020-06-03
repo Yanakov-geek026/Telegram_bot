@@ -5,13 +5,14 @@ import analyzerBot.CheckText.CheckFindWordText;
 import analyzerBot.CheckText.CheckLongText;
 import analyzerBot.CheckText.CheckPhoneNumberOrLink;
 import analyzerBot.CheckText.CheckSmileText;
+import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 
 import java.util.*;
 
 public class Rules {
 
-    private Map<Long, List<Analyzer<String>>> rulesChat;
+    private Map<Long, Map<FilterType, Analyzer<String>>> rulesChat;
     private long chatId;
 
     public Rules(DBContext db, long chatId) {
@@ -24,35 +25,44 @@ public class Rules {
         }
     }
 
-        private List<Analyzer<String>> createRules() {
-            List<Analyzer<String>> rules = new ArrayList<>();
-            rules.add(new CheckLongText(20));
-            rules.add(new CheckPhoneNumberOrLink());
-            rules.add(new CheckSmileText());
+    // Инициализация стандартных правил для чата
+    private Map<FilterType, Analyzer<String>> createRules() {
+        Map<FilterType, Analyzer<String>> rules = new HashMap<>();
+        rules.put(FilterType.LONG_TEXT, new CheckLongText(20));
+        rules.put(FilterType.PHONE_NUMBER, new CheckPhoneNumberOrLink());
+        rules.put(FilterType.USE_SMILE, new CheckSmileText());
 
-            return rules;
-        }
-
-        public List<Analyzer<String>> getRules () {
-            return rulesChat.get(chatId);
-        }
-
-        // Класс для проверки кол-во чатов в бд
-        public String getSizeRules() {
-            return String.valueOf(rulesChat.keySet());
-        }
-
-        // Удалить бд для определенного чата
-        public void remove() {
-            rulesChat.remove(chatId);
-        }
-
-        public void addRulesCheckFindWordText(String word) {
-            List<Analyzer<String>> listRule = rulesChat.get(chatId);
-            remove();
-            listRule.add(new CheckFindWordText(word));
-            rulesChat.put(chatId, listRule);
-            //rulesChat.get(chatId).add(new CheckFindWordText(word));
-        }
+        return rules;
     }
+
+    public Map<FilterType, Analyzer<String>> getRules () {
+        return rulesChat.get(chatId);
+    }
+
+    // Класс для проверки кол-во чатов в бд
+    public String getSizeRules() {
+        return String.valueOf(rulesChat.keySet());
+    }
+
+    // Удалить бд для определенного чата
+    public void remove() {
+        rulesChat.remove(chatId);
+    }
+
+    // Добавление метода для анализа запрещенных слов
+    public void addRulesCheckFindWordText(String word) {
+        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
+        remove();
+        listRule.put(FilterType.FORBIDDEN_WORD, new CheckFindWordText(word));
+        rulesChat.put(chatId, listRule);
+        //rulesChat.get(chatId).add(new CheckFindWordText(word));
+    }
+
+    public void offRule(FilterType typeRule) {
+        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
+        remove();
+        listRule.remove(typeRule);
+        rulesChat.put(chatId, listRule);
+    }
+}
 
