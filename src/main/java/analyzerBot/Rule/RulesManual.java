@@ -51,25 +51,30 @@ public class RulesManual {
         if (!manual.containsKey(FilterType.FORBIDDEN_WORD)) {
             manual.put(FilterType.FORBIDDEN_WORD, "(ON) You can't use word a ( " + description + " ) ");
         } else {
-            String valueManual = manual.get(FilterType.FORBIDDEN_WORD) + ", ( " + description + " ) " ;
+            String valueManual = manual.get(FilterType.FORBIDDEN_WORD) + ", ( " + description + " ) ";
             manual.put(FilterType.FORBIDDEN_WORD, valueManual);
         }
-        remove();
         manualRules.put(chatId, manual);
         rules.addRulesCheckFindWordText(description);
     }
 
-    public void offRule(Rules rules, int positionRule) {
+    // Включение и выключение выбранных правил
+    public void switchRule(Rules rules, int positionRule, String attribute) {
         Map<FilterType, String> manualRuleText = manualRules.get(chatId);
+        String disAttributeText = (attribute.equals("(ON)") ? "(OFF)" : "(ON)");
+        int indentation = (attribute.equals("(ON)") ? 5 : 4);
         int i = 0;
         for (Map.Entry<FilterType, String> manual : manualRuleText.entrySet()) {
             i++;
-            if (i == positionRule && manual.getValue().contains("(ON)")) {
+            if (i == positionRule && manual.getValue().contains(disAttributeText)) {
                 String textManual = manual.getValue();
-                manualRuleText.put(manual.getKey(), "(OFF)" + textManual.substring(4, textManual.length()));
-                remove();
+                manualRuleText.put(manual.getKey(), attribute + textManual.substring(indentation));
                 manualRules.put(chatId, manualRuleText);
-                rules.offRule(manual.getKey());
+                if (attribute.equals("(ON)")) {
+                    rules.onRule(manual.getKey());
+                } else {
+                    rules.offRule(manual.getKey());
+                }
             }
         }
     }

@@ -21,12 +21,5 @@ public interface Analyzer<T> {
             }
         }
         return FilterType.GOOD;
-
-//        for (Analyzer<T> analyzer : rules) {
-//            if (analyzer.check(message)) {
-//                return analyzer.getFilterType();
-//            }
-//        }
-//        return FilterType.GOOD;
     }
 }

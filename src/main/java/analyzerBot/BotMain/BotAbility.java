@@ -4,7 +4,6 @@ import analyzerBot.AnalyzerInterface.Analyzer;
 import analyzerBot.Rule.Rules;
 import analyzerBot.Rule.RulesManual;
 import analyzerBot.Types.FilterType;
-import javafx.css.Rule;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
@@ -15,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.Map;
 
 public class BotAbility implements AbilityExtension {
+
     private SilentSender silentSender;
     private DBContext db;
     private User user;
@@ -71,8 +71,26 @@ public class BotAbility implements AbilityExtension {
                 .action(ctx -> {
                     RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
-                    rulesManual.offRule(rules, Integer.parseInt(ctx.firstArg()));
-                    silentSender.send("Rule offed", ctx.chatId());
+//                    rulesManual.offRule(rules, Integer.parseInt(ctx.firstArg()));
+                    rulesManual.switchRule(rules, Integer.parseInt(ctx.firstArg()), "(OFF)");
+                    silentSender.send("Rule disabled", ctx.chatId());
+                })
+                .build();
+    }
+
+    public Ability onRule() {
+        return Ability
+                .builder()
+                .name("onrule")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+                    Rules rules = new Rules(db, ctx.chatId());
+//                    rulesManual.onRule(rules, Integer.parseInt(ctx.firstArg()));
+                    rulesManual.switchRule(rules, Integer.parseInt(ctx.firstArg()), "(ON)");
+                    silentSender.send("Rule enabled ", ctx.chatId());
                 })
                 .build();
     }

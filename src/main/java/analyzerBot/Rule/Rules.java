@@ -12,16 +12,20 @@ import java.util.*;
 
 public class Rules {
 
-    private Map<Long, Map<FilterType, Analyzer<String>>> rulesChat;
+    private Map<Long, Map<FilterType, Analyzer<String>>> rulesChat, allRulesText;
+    private Map<Long, List<String>> forbiddenWords;
     private long chatId;
 
     public Rules(DBContext db, long chatId) {
-
+        forbiddenWords = db.getMap("ForbiddenWords");
         rulesChat = db.getMap("ChatRules3");
+        allRulesText = db.getMap("AllRulesText");
         this.chatId = chatId;
 
         if (rulesChat.isEmpty() || !rulesChat.containsKey(chatId)) {
             rulesChat.put(chatId, createRules());
+            allRulesText.put(chatId, createRules());
+            forbiddenWords.put(chatId, new ArrayList<>());
         }
     }
 
@@ -35,7 +39,7 @@ public class Rules {
         return rules;
     }
 
-    public Map<FilterType, Analyzer<String>> getRules () {
+    public Map<FilterType, Analyzer<String>> getRules() {
         return rulesChat.get(chatId);
     }
 
@@ -47,21 +51,37 @@ public class Rules {
     // Удалить бд для определенного чата
     public void remove() {
         rulesChat.remove(chatId);
+        allRulesText.remove(chatId);
+        forbiddenWords.remove(chatId);
     }
 
     // Добавление метода для анализа запрещенных слов
-    public void addRulesCheckFindWordText(String word) {
+    void addRulesCheckFindWordText(String word) {
         Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
-        remove();
-        listRule.put(FilterType.FORBIDDEN_WORD, new CheckFindWordText(word));
+        List<String> listForbiddenWords = forbiddenWords.get(chatId);
+
+        listForbiddenWords.add(word);
+        forbiddenWords.put(chatId, listForbiddenWords);
+
+        listRule.put(FilterType.FORBIDDEN_WORD, new CheckFindWordText(forbiddenWords.get(chatId)));
+
         rulesChat.put(chatId, listRule);
-        //rulesChat.get(chatId).add(new CheckFindWordText(word));
+        allRulesText.put(chatId, listRule);
     }
 
-    public void offRule(FilterType typeRule) {
+    // Выключение выбранных правил
+    void offRule(FilterType typeRule) {
         Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
-        remove();
         listRule.remove(typeRule);
+
+        rulesChat.put(chatId, listRule);
+    }
+
+    // Включение выбранных правил
+    void onRule(FilterType typeRule) {
+        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
+        listRule.put(typeRule, allRulesText.get(chatId).get(typeRule));
+
         rulesChat.put(chatId, listRule);
     }
 }

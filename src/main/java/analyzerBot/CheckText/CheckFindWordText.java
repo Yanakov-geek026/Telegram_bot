@@ -4,18 +4,24 @@ import analyzerBot.AnalyzerInterface.AnalyzerText;
 import analyzerBot.Types.FilterType;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class CheckFindWordText implements AnalyzerText, Serializable {
 
-    private String word;
+    private List<String> forbiddenWords;
 
-    public CheckFindWordText(String word) {
-        this.word = word;
+    public CheckFindWordText(List<String> forbiddenWords) {
+        this.forbiddenWords = forbiddenWords;
     }
 
     @Override
     public boolean check(String message) {
-        return message.contains(word);
+        for (String word : forbiddenWords) {
+            if (message.contains(word)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
