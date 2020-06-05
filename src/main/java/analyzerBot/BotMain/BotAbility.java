@@ -4,13 +4,18 @@ import analyzerBot.AnalyzerInterface.Analyzer;
 import analyzerBot.Rule.Rules;
 import analyzerBot.Rule.RulesManual;
 import analyzerBot.Types.FilterType;
+import analyzerBot.Types.TypeMessage;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.AbilityExtension;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.DeleteChatPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.List;
 import java.util.Map;
 
 public class BotAbility implements AbilityExtension {
@@ -115,41 +120,62 @@ public class BotAbility implements AbilityExtension {
 
     // Анализ текстовых сообщений на нарушения правил
     public Reply message() {
+        return Reply.of( update -> {
+                    String messageText = update.getMessage().getText();
+                    FilterType analyzerMessage = analyzerMassage(messageText, update.getMessage().getChatId());
+                    deleteMessage(update, analyzerMessage);
+
+                }, Flag.TEXT,
+                update -> !update.getMessage().getText().contains("/"));
+    }
+
+    // Анализ ссылки на нарушения правил
+    public Reply messageLink() {
         return Reply.of(update -> {
-            long chatId = update.getMessage().getChatId();
-            String messageText = update.getMessage().getText();
-
-            FilterType analyzerMessage = analyzerMassage(messageText, chatId);
-
-//            analyzerBot.Types.FilterType analyzerMessage = analyzerBot.Types.FilterType.GOOD;
-//            analyzerBot.Rule.Rules rules = new analyzerBot.Rule.Rules(db, chatId);
-//            rules.remove();
-//            silentSender.send(rules.getSizeRules(), chatId);
-
-            if (analyzerMessage != FilterType.GOOD) {
-                int messageId = update.getMessage().getMessageId();
-
-                DeleteMessage deleteMessage = new DeleteMessage();
-                deleteMessage.setChatId(chatId);
-                deleteMessage.setMessageId(messageId);
-
-                silentSender.execute(deleteMessage);
-                silentSender.send("Message was deleted due to non-compliance. Cause: " + analyzerMessage,
-                        update.getMessage().getChatId());
-            }
-        }, Flag.TEXT, update -> !update.getMessage().getText().contains("/"));
+                    String messageText = update.getMessage().getText();
+                    FilterType analyzerMessage = analyzerMassage(messageText, update.getMessage().getChatId());
+                    deleteMessage(update, analyzerMessage);
+                }, Flag.MESSAGE,
+                update -> !update.getMessage().hasPhoto() && update.getMessage().getText().contains("https"));
     }
 
     // Анализ фото на нарушения правил
     public Reply photo() {
         return Reply.of(update -> {
-            silentSender.send("Photo", update.getMessage().getChatId());
-
+            List<PhotoSize> photo = update.getMessage().getPhoto();
+            FilterType analyzerPhoto = analyzerPhoto(photo, update.getMessage().getChatId());
+//            for (PhotoSize photoSizes : photo) {
+//                silentSender.send(String.valueOf(photoSizes.getWidth()), update.getMessage().getChatId());
+//            }
+//            silentSender.send(String.valueOf(photo.get(photo.size()).getWidth()), update.getMessage().getChatId());
+            deleteMessage(update, analyzerPhoto);
         }, Flag.PHOTO);
+    }
+
+    // Метод по удаления сообщения
+    private void deleteMessage(Update update, FilterType analyzer) {
+        DeleteMessage deleteMessage = new DeleteMessage();
+
+        if (analyzer != FilterType.GOOD) {
+            int messageId = update.getMessage().getMessageId();
+
+            deleteMessage.setChatId(update.getMessage().getChatId());
+            deleteMessage.setMessageId(messageId);
+            silentSender.execute(deleteMessage);
+            silentSender.send("Message was deleted due to non-compliance. Cause: " + analyzer,
+                    update.getMessage().getChatId());
+        }
     }
 
     private FilterType analyzerMassage(String messageText, long chatId) {
         Rules rules = new Rules(db, chatId);
         return Analyzer.analyze(messageText, rules.getRules());
     }
+
+    private FilterType analyzerPhoto(List<PhotoSize> photo, long chatId) {
+        Rules rules = new Rules(db, chatId);
+        return Analyzer.analyze(photo, rules.getPhotoRules());
+    }
+
 }
+

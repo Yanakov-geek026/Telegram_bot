@@ -1,18 +1,19 @@
 package analyzerBot.Rule;
 
 import analyzerBot.AnalyzerInterface.Analyzer;
-import analyzerBot.CheckText.CheckFindWordText;
-import analyzerBot.CheckText.CheckLongText;
-import analyzerBot.CheckText.CheckPhoneNumberOrLink;
-import analyzerBot.CheckText.CheckSmileText;
+import analyzerBot.CheckPhoto.CheckHeightPhoto;
+import analyzerBot.CheckPhoto.CheckWidthPhoto;
+import analyzerBot.CheckText.*;
 import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
 import java.util.*;
 
 public class Rules {
 
     private Map<Long, Map<FilterType, Analyzer<String>>> rulesChat, allRulesText;
+    private Map<Long, Map<FilterType, Analyzer<List<PhotoSize>>>> rulesChatPhoto, allRulesTextPhoto;
     private Map<Long, List<String>> forbiddenWords;
     private long chatId;
 
@@ -20,27 +21,50 @@ public class Rules {
         forbiddenWords = db.getMap("ForbiddenWords");
         rulesChat = db.getMap("ChatRules3");
         allRulesText = db.getMap("AllRulesText");
+
+        rulesChatPhoto = db.getMap("ChatRulesPhoto3");
+        allRulesTextPhoto = db.getMap("AllRulesTextPhoto");
+
         this.chatId = chatId;
 
         if (rulesChat.isEmpty() || !rulesChat.containsKey(chatId)) {
-            rulesChat.put(chatId, createRules());
-            allRulesText.put(chatId, createRules());
             forbiddenWords.put(chatId, new ArrayList<>());
+            rulesChat.put(chatId, createRulesText());
+            allRulesText.put(chatId, createRulesText());
+
+            rulesChatPhoto.put(chatId, createRulesPhoto());
+            allRulesTextPhoto.put(chatId, createRulesPhoto());
         }
     }
 
-    // Инициализация стандартных правил для чата
-    private Map<FilterType, Analyzer<String>> createRules() {
+    // Инициализация стандартных текстовых правил для чата
+    private Map<FilterType, Analyzer<String>> createRulesText() {
         Map<FilterType, Analyzer<String>> rules = new HashMap<>();
         rules.put(FilterType.LONG_TEXT, new CheckLongText(20));
-        rules.put(FilterType.PHONE_NUMBER, new CheckPhoneNumberOrLink());
+        rules.put(FilterType.PHONE_NUMBER, new CheckPhoneNumberText());
+        rules.put(FilterType.REPOST_LINK, new CheckLinkText());
         rules.put(FilterType.USE_SMILE, new CheckSmileText());
 
         return rules;
     }
 
+    // Инициализация стандартных правил на фото для чата
+    private Map<FilterType, Analyzer<List<PhotoSize>>> createRulesPhoto() {
+        Map<FilterType, Analyzer<List<PhotoSize>>> rules = new HashMap<>();
+        rules.put(FilterType.PHOTO_VERY_WIDTH, new CheckWidthPhoto(800));
+        rules.put(FilterType.PHOTO_VERY_HEIGHT, new CheckHeightPhoto(100));
+
+        return rules;
+    }
+
+    //Возвращаем список правил для текста
     public Map<FilterType, Analyzer<String>> getRules() {
         return rulesChat.get(chatId);
+    }
+
+    //Возвращаем список правил для фото
+    public Map<FilterType, Analyzer<List<PhotoSize>>> getPhotoRules() {
+        return rulesChatPhoto.get(chatId);
     }
 
     // Класс для проверки кол-во чатов в бд
@@ -53,6 +77,9 @@ public class Rules {
         rulesChat.remove(chatId);
         allRulesText.remove(chatId);
         forbiddenWords.remove(chatId);
+
+        rulesChatPhoto.remove(chatId);
+        allRulesTextPhoto.remove(chatId);
     }
 
     // Добавление метода для анализа запрещенных слов
@@ -71,18 +98,26 @@ public class Rules {
 
     // Выключение выбранных правил
     void offRule(FilterType typeRule) {
-        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
-        listRule.remove(typeRule);
+        Map<FilterType, Analyzer<String>> listRuleText = rulesChat.get(chatId);
+        Map<FilterType, Analyzer<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
 
-        rulesChat.put(chatId, listRule);
+        listRuleText.remove(typeRule);
+        listRulePhoto.remove(typeRule);
+
+        rulesChat.put(chatId, listRuleText);
+        rulesChatPhoto.put(chatId, listRulePhoto);
     }
 
     // Включение выбранных правил
     void onRule(FilterType typeRule) {
         Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
+        Map<FilterType, Analyzer<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
+
         listRule.put(typeRule, allRulesText.get(chatId).get(typeRule));
+        listRulePhoto.put(typeRule, allRulesTextPhoto.get(chatId).get(typeRule));
 
         rulesChat.put(chatId, listRule);
+        rulesChatPhoto.put(chatId, listRulePhoto);
     }
 }
 

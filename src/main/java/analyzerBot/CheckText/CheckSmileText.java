@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class CheckSmileText implements AnalyzerText, Serializable {
 
-    private final String[] smiles = {":)", ":(", "))", ":/", ":|"};
+    private final String[] smiles = {":)", ":(", "))", ":|"};
 
     @Override
     public boolean check(String message) {

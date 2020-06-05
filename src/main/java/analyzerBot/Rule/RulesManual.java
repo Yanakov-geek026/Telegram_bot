@@ -27,6 +27,8 @@ public class RulesManual {
         manual.put(FilterType.USE_SMILE, "(ON) You can not use emoticons");
         manual.put(FilterType.PHONE_NUMBER, "(ON) Cannot send phone number");
         manual.put(FilterType.REPOST_LINK, "(ON) Do not send various links");
+        manual.put(FilterType.PHOTO_VERY_WIDTH, "(ON) Cannot send photos width than 800 pixels");
+        manual.put(FilterType.PHOTO_VERY_HEIGHT, "(ON) Cannot send photos height than 100 pixels");
 
         return manual;
     }
