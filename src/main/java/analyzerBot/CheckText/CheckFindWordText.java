@@ -8,21 +8,16 @@ import java.util.List;
 
 public class CheckFindWordText extends ControlRules<String> implements Serializable {
 
-    private List<String> forbiddenWords;
+    private String word;
 
-    public CheckFindWordText(List<String> forbiddenWords) {
+    public CheckFindWordText(String word) {
+        this.word = word;
         ruleBoolean = true;
-        this.forbiddenWords = forbiddenWords;
     }
 
     @Override
     public boolean check(String message) {
-        for (String word : forbiddenWords) {
-            if (message.contains(word)) {
-                return true;
-            }
-        }
-        return false;
+        return message.contains(word);
     }
 
     @Override
@@ -47,6 +42,6 @@ public class CheckFindWordText extends ControlRules<String> implements Serializa
 
     @Override
     public String manualRules() {
-        return (ruleBoolean? "(ON)": "(OFF)") + " You can't use word a (" + forbiddenWords + ") " + FilterType.FORBIDDEN_WORD + "\n";
+        return (ruleBoolean? "(ON)": "(OFF)") + " You can't use word a (" + word + ") " + FilterType.FORBIDDEN_WORD + "\n";
     }
 }

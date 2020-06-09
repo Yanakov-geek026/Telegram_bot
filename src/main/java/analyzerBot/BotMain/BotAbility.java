@@ -2,7 +2,6 @@ package analyzerBot.BotMain;
 
 import analyzerBot.AnalyzerInterface.Analyzer;
 import analyzerBot.Rule.Rules;
-import analyzerBot.Rule.RulesManual;
 import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
@@ -55,9 +54,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
-                    rulesManual.addRulesForbiddenWord(rules, ctx.firstArg());
+                    rules.addRulesCheckFindWordText(ctx.firstArg());
                     silentSender.send("Rule added", ctx.chatId());
                 })
                 .build();
@@ -72,11 +70,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
-//                    rulesManual.offRule(rules, Integer.parseInt(ctx.firstArg()));
-                    rulesManual.switchRule(rules, Integer.parseInt(ctx.firstArg()), "(OFF)");
-                    silentSender.send("Rule disabled", ctx.chatId());
+                    silentSender.send(rules.switchRule(Integer.parseInt(ctx.firstArg()), false), ctx.chatId());
                 })
                 .build();
     }
@@ -89,11 +84,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
-//                    rulesManual.onRule(rules, Integer.parseInt(ctx.firstArg()));
-                    rulesManual.switchRule(rules, Integer.parseInt(ctx.firstArg()), "(ON)");
-                    silentSender.send("Rule enabled ", ctx.chatId());
+                    silentSender.send(rules.switchRule(Integer.parseInt(ctx.firstArg()), true), ctx.chatId());
                 })
                 .build();
     }
@@ -107,10 +99,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
                     Rules rules = new Rules(db, ctx.chatId());
                     rules.remove();
-                    rulesManual.remove();
                     silentSender.send("Rules cleared", ctx.chatId());
                 })
                 .build();

@@ -12,9 +12,9 @@ public interface Analyzer<T> {
 
     FilterType getFilterType();
 
-    static <T> FilterType analyze(T message, Map<FilterType, ControlRules<T>> rules) {
+    static <T> FilterType analyze(T message, Map<String, ControlRules<T>> rules) {
 
-        for (Map.Entry<FilterType, ControlRules<T>> analyzer : rules.entrySet()) {
+        for (Map.Entry<String, ControlRules<T>> analyzer : rules.entrySet()) {
             if (analyzer.getValue().check(message) && analyzer.getValue().checkActivateRule()) {
                 return analyzer.getValue().getFilterType();
             }
