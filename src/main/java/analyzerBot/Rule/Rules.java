@@ -1,6 +1,6 @@
 package analyzerBot.Rule;
 
-import analyzerBot.AnalyzerInterface.Analyzer;
+import analyzerBot.AnalyzerInterface.ControlRules;
 import analyzerBot.CheckPhoto.CheckHeightPhoto;
 import analyzerBot.CheckPhoto.CheckWidthPhoto;
 import analyzerBot.CheckText.*;
@@ -8,22 +8,32 @@ import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Rules {
 
-    private Map<Long, Map<FilterType, Analyzer<String>>> rulesChat, allRulesText;
-    private Map<Long, Map<FilterType, Analyzer<List<PhotoSize>>>> rulesChatPhoto, allRulesTextPhoto;
+    private Map<Long, Map<FilterType, ControlRules<String>>> rulesChat, allRulesText;
+    private Map<Long, Map<FilterType, ControlRules<List<PhotoSize>>>> rulesChatPhoto, allRulesTextPhoto;
     private Map<Long, List<String>> forbiddenWords;
     private long chatId;
 
     public Rules(DBContext db, long chatId) {
-        forbiddenWords = db.getMap("ForbiddenWords");
-        rulesChat = db.getMap("ChatRules3");
-        allRulesText = db.getMap("AllRulesText");
+//        forbiddenWords = db.getMap("ForbiddenWords");
+//        rulesChat = db.getMap("ChatRules3");
+//        allRulesText = db.getMap("AllRulesText");
+//
+//        rulesChatPhoto = db.getMap("ChatRulesPhoto3");
+//        allRulesTextPhoto = db.getMap("AllRulesTextPhoto");
 
-        rulesChatPhoto = db.getMap("ChatRulesPhoto3");
-        allRulesTextPhoto = db.getMap("AllRulesTextPhoto");
+        forbiddenWords = db.getMap("ForbiddenWordsNew2");
+        rulesChat = db.getMap("ChatRulesNew2");
+        allRulesText = db.getMap("AllRulesTextNew2");
+
+        rulesChatPhoto = db.getMap("ChatRulesPhotoNew2");
+        allRulesTextPhoto = db.getMap("AllRulesTextPhotoNew2");
 
         this.chatId = chatId;
 
@@ -38,8 +48,8 @@ public class Rules {
     }
 
     // Инициализация стандартных текстовых правил для чата
-    private Map<FilterType, Analyzer<String>> createRulesText() {
-        Map<FilterType, Analyzer<String>> rules = new HashMap<>();
+    private Map<FilterType, ControlRules<String>> createRulesText() {
+        Map<FilterType, ControlRules<String>> rules = new HashMap<>();
         rules.put(FilterType.LONG_TEXT, new CheckLongText(20));
         rules.put(FilterType.PHONE_NUMBER, new CheckPhoneNumberText());
         rules.put(FilterType.REPOST_LINK, new CheckLinkText());
@@ -49,8 +59,8 @@ public class Rules {
     }
 
     // Инициализация стандартных правил на фото для чата
-    private Map<FilterType, Analyzer<List<PhotoSize>>> createRulesPhoto() {
-        Map<FilterType, Analyzer<List<PhotoSize>>> rules = new HashMap<>();
+    private Map<FilterType, ControlRules<List<PhotoSize>>> createRulesPhoto() {
+        Map<FilterType, ControlRules<List<PhotoSize>>> rules = new HashMap<>();
         rules.put(FilterType.PHOTO_VERY_WIDTH, new CheckWidthPhoto(800));
         rules.put(FilterType.PHOTO_VERY_HEIGHT, new CheckHeightPhoto(100));
 
@@ -58,12 +68,12 @@ public class Rules {
     }
 
     //Возвращаем список правил для текста
-    public Map<FilterType, Analyzer<String>> getRules() {
+    public Map<FilterType, ControlRules<String>> getRules() {
         return rulesChat.get(chatId);
     }
 
     //Возвращаем список правил для фото
-    public Map<FilterType, Analyzer<List<PhotoSize>>> getPhotoRules() {
+    public Map<FilterType, ControlRules<List<PhotoSize>>> getPhotoRules() {
         return rulesChatPhoto.get(chatId);
     }
 
@@ -84,7 +94,7 @@ public class Rules {
 
     // Добавление метода для анализа запрещенных слов
     void addRulesCheckFindWordText(String word) {
-        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
+        Map<FilterType, ControlRules<String>> listRule = rulesChat.get(chatId);
         List<String> listForbiddenWords = forbiddenWords.get(chatId);
 
         listForbiddenWords.add(word);
@@ -98,8 +108,8 @@ public class Rules {
 
     // Выключение выбранных правил
     void offRule(FilterType typeRule) {
-        Map<FilterType, Analyzer<String>> listRuleText = rulesChat.get(chatId);
-        Map<FilterType, Analyzer<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
+        Map<FilterType, ControlRules<String>> listRuleText = rulesChat.get(chatId);
+        Map<FilterType, ControlRules<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
 
         listRuleText.remove(typeRule);
         listRulePhoto.remove(typeRule);
@@ -110,14 +120,25 @@ public class Rules {
 
     // Включение выбранных правил
     void onRule(FilterType typeRule) {
-        Map<FilterType, Analyzer<String>> listRule = rulesChat.get(chatId);
-        Map<FilterType, Analyzer<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
+        Map<FilterType, ControlRules<String>> listRule = rulesChat.get(chatId);
+        Map<FilterType, ControlRules<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
 
         listRule.put(typeRule, allRulesText.get(chatId).get(typeRule));
         listRulePhoto.put(typeRule, allRulesTextPhoto.get(chatId).get(typeRule));
 
         rulesChat.put(chatId, listRule);
         rulesChatPhoto.put(chatId, listRulePhoto);
+    }
+
+    public String getManualAllRules() {
+        StringBuilder manual = new StringBuilder();
+        for (Map.Entry<FilterType, ControlRules<String>> rules : rulesChat.get(chatId).entrySet()) {
+            manual.append(rules.getValue().manualRules());
+        }
+        for (Map.Entry<FilterType, ControlRules<List<PhotoSize>>> rules : rulesChatPhoto.get(chatId).entrySet()) {
+            manual.append(rules.getValue().manualRules());
+        }
+        return manual.toString();
     }
 }
 

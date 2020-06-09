@@ -4,19 +4,16 @@ import analyzerBot.AnalyzerInterface.Analyzer;
 import analyzerBot.Rule.Rules;
 import analyzerBot.Rule.RulesManual;
 import analyzerBot.Types.FilterType;
-import analyzerBot.Types.TypeMessage;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.AbilityExtension;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.DeleteChatPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.Map;
 
 public class BotAbility implements AbilityExtension {
 
@@ -38,11 +35,12 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    String regulations = "";
-                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
-                    for (Map.Entry<FilterType, String> manual : rulesManual.getManualRules().entrySet()) {
-                        regulations += manual.getValue() + " (" + manual.getKey() + ") \n";
-                    }
+                    Rules rules = new Rules(db, ctx.chatId());
+                    String regulations = rules.getManualAllRules();
+//                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
+//                    for (Map.Entry<FilterType, String> manual : rulesManual.getManualRules().entrySet()) {
+//                        regulations += manual.getValue() + " (" + manual.getKey() + ") \n";
+//                    }
                     silentSender.send(regulations, ctx.chatId());
                 })
                 .build();
