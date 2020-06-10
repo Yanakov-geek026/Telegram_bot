@@ -1,4 +1,4 @@
-package analyzerBot.BotMain;
+package ru.gasu.yanakov.bot.analyzer;
 
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.DefaultBotOptions;

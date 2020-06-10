@@ -1,5 +1,6 @@
-package analyzerBot.AnalyzerInterface;
+package ru.gasu.yanakov.bot.analyzer.models;
 
+import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
 import java.util.List;

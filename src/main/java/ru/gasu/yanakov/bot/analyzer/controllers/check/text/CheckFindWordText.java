@@ -1,10 +1,9 @@
-package analyzerBot.CheckText;
+package ru.gasu.yanakov.bot.analyzer.controllers.check.text;
 
-import analyzerBot.AnalyzerInterface.ControlRules;
-import analyzerBot.Types.FilterType;
+import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
+import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class CheckFindWordText extends ControlRules<String> implements Serializable {
 

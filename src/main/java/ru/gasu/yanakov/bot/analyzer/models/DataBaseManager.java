@@ -1,8 +1,8 @@
-package analyzerBot.AnalyzerInterface;
+package ru.gasu.yanakov.bot.analyzer.models;
 
-import analyzerBot.CheckPhoto.CheckHeightPhoto;
-import analyzerBot.CheckPhoto.CheckWidthPhoto;
-import analyzerBot.CheckText.*;
+import ru.gasu.yanakov.bot.analyzer.controllers.check.photo.CheckSizePhoto;
+import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
+import ru.gasu.yanakov.bot.analyzer.controllers.check.text.*;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
@@ -21,8 +21,8 @@ public class DataBaseManager implements DBManager {
     }
 
     private void DBRules(DBContext db) {
-        rulesChat = db.getMap("ChatRulesNew1");
-        rulesChatPhoto = db.getMap("ChatRulesPhotoNew1");
+        rulesChat = db.getMap("ChatRulesNew");
+        rulesChatPhoto = db.getMap("ChatRulesPhotoNew");
     }
 
     @Override
@@ -46,8 +46,7 @@ public class DataBaseManager implements DBManager {
     // Инициализация стандартных правил на фото для чата
     private Map<String, ControlRules<List<PhotoSize>>> createRulesPhoto() {
         Map<String, ControlRules<List<PhotoSize>>> rules = new HashMap<>();
-        rules.put(UUID.randomUUID().toString(), new CheckWidthPhoto(800));
-        rules.put(UUID.randomUUID().toString(), new CheckHeightPhoto(100));
+        rules.put(UUID.randomUUID().toString(), new CheckSizePhoto(800, 100));
 
         return rules;
     }

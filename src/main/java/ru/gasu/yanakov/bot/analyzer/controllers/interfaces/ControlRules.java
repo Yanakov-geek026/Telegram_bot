@@ -1,4 +1,4 @@
-package analyzerBot.AnalyzerInterface;
+package ru.gasu.yanakov.bot.analyzer.controllers.interfaces;
 
 import java.io.Serializable;
 

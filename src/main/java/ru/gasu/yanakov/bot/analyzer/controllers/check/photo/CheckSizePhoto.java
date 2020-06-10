@@ -1,25 +1,27 @@
-package analyzerBot.CheckPhoto;
+package ru.gasu.yanakov.bot.analyzer.controllers.check.photo;
 
-import analyzerBot.AnalyzerInterface.ControlRules;
-import analyzerBot.Types.FilterType;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
+import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class CheckWidthPhoto extends ControlRules<List<PhotoSize>> implements Serializable {
+public class CheckSizePhoto extends ControlRules<List<PhotoSize>> implements Serializable {
 
     private int width;
+    private int height;
 
-    public CheckWidthPhoto(int width) {
+    public CheckSizePhoto(int width, int height) {
         ruleBoolean = true;
         this.width = width;
+        this.height = height;
     }
 
     @Override
     public boolean check(List<PhotoSize> content) {
         for (PhotoSize photo : content) {
-            if (photo.getWidth() > width) {
+            if (photo.getWidth() > width || photo.getHeight() > height) {
                 return true;
             }
         }
@@ -28,7 +30,7 @@ public class CheckWidthPhoto extends ControlRules<List<PhotoSize>> implements Se
 
     @Override
     public FilterType getFilterType() {
-        return FilterType.PHOTO_VERY_WIDTH;
+        return FilterType.PHOTO_SIZE;
     }
 
     @Override
@@ -48,6 +50,7 @@ public class CheckWidthPhoto extends ControlRules<List<PhotoSize>> implements Se
 
     @Override
     public String manualRules() {
-        return (ruleBoolean? "(ON)": "(OFF)") + " Cannot send photos width than " + width + " pixels " + FilterType.PHOTO_VERY_WIDTH + "\n";
+        return (ruleBoolean? "(ON)": "(OFF)") + " You cannot send a picture larger than " +
+                width + "x" + height + " pixels " + FilterType.PHOTO_SIZE + "\n";
     }
 }

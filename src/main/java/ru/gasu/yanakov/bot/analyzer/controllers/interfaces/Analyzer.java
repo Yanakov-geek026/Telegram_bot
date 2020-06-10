@@ -1,6 +1,6 @@
-package analyzerBot.AnalyzerInterface;
+package ru.gasu.yanakov.bot.analyzer.controllers.interfaces;
 
-import analyzerBot.Types.FilterType;
+import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 
 import java.util.Map;
 
