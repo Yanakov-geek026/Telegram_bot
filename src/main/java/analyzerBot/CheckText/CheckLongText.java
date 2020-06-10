@@ -41,6 +41,6 @@ public class CheckLongText extends ControlRules<String> implements Serializable 
 
     @Override
     public String manualRules() {
-        return (ruleBoolean? "(ON)": "(OFF)") + " Cannot send message more than " + textSize + " characters" + FilterType.LONG_TEXT + "\n";
+        return (ruleBoolean? "(ON)": "(OFF)") + " Cannot send message more than " + textSize + " characters " + FilterType.LONG_TEXT + "\n";
     }
 }

@@ -1,7 +1,7 @@
 package analyzerBot.BotMain;
 
 import analyzerBot.AnalyzerInterface.Analyzer;
-import analyzerBot.Rule.Rules;
+import analyzerBot.AnalyzerInterface.DataBaseManager;
 import analyzerBot.Types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
@@ -10,19 +10,32 @@ import org.telegram.abilitybots.api.util.AbilityExtension;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
 public class BotAbility implements AbilityExtension {
 
     private SilentSender silentSender;
-    private DBContext db;
-    private User user;
+    private DataBaseManager dataBaseManager;
 
     BotAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
-        this.db = db;
+        dataBaseManager = new DataBaseManager(db);
+    }
+
+    // Инициализация правил
+    public Ability start() {
+        return Ability
+                .builder()
+                .name("start")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(0)
+                .action(ctx -> {
+                    dataBaseManager.setDBRule(ctx.chatId());
+                    silentSender.send("Rules created", ctx.chatId());
+                })
+                .build();
     }
 
     // Вывод всех текущих правил в чате
@@ -34,13 +47,7 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    Rules rules = new Rules(db, ctx.chatId());
-                    String regulations = rules.getManualAllRules();
-//                    RulesManual rulesManual = new RulesManual(db, ctx.chatId());
-//                    for (Map.Entry<FilterType, String> manual : rulesManual.getManualRules().entrySet()) {
-//                        regulations += manual.getValue() + " (" + manual.getKey() + ") \n";
-//                    }
-                    silentSender.send(regulations, ctx.chatId());
+                    silentSender.send(dataBaseManager.getManualAllRules(ctx.chatId()), ctx.chatId());
                 })
                 .build();
     }
@@ -54,8 +61,7 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    Rules rules = new Rules(db, ctx.chatId());
-                    rules.addRulesCheckFindWordText(ctx.firstArg());
+                    dataBaseManager.addRulesCheckFindWordText(ctx.firstArg(), ctx.chatId());
                     silentSender.send("Rule added", ctx.chatId());
                 })
                 .build();
@@ -70,8 +76,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    Rules rules = new Rules(db, ctx.chatId());
-                    silentSender.send(rules.switchRule(Integer.parseInt(ctx.firstArg()), false), ctx.chatId());
+                    silentSender.send(dataBaseManager.switchRule(Integer.parseInt(ctx.firstArg()),
+                            false, ctx.chatId()), ctx.chatId());
                 })
                 .build();
     }
@@ -84,8 +90,8 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    Rules rules = new Rules(db, ctx.chatId());
-                    silentSender.send(rules.switchRule(Integer.parseInt(ctx.firstArg()), true), ctx.chatId());
+                    silentSender.send(dataBaseManager.switchRule(Integer.parseInt(ctx.firstArg()),
+                            true, ctx.chatId()), ctx.chatId());
                 })
                 .build();
     }
@@ -99,8 +105,7 @@ public class BotAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    Rules rules = new Rules(db, ctx.chatId());
-                    rules.remove();
+                    dataBaseManager.remove(ctx.chatId());
                     silentSender.send("Rules cleared", ctx.chatId());
                 })
                 .build();
@@ -132,10 +137,6 @@ public class BotAbility implements AbilityExtension {
         return Reply.of(update -> {
             List<PhotoSize> photo = update.getMessage().getPhoto();
             FilterType analyzerPhoto = analyzerPhoto(photo, update.getMessage().getChatId());
-//            for (PhotoSize photoSizes : photo) {
-//                silentSender.send(String.valueOf(photoSizes.getWidth()), update.getMessage().getChatId());
-//            }
-//            silentSender.send(String.valueOf(photo.get(photo.size()).getWidth()), update.getMessage().getChatId());
             deleteMessage(update, analyzerPhoto);
         }, Flag.PHOTO);
     }
@@ -156,14 +157,11 @@ public class BotAbility implements AbilityExtension {
     }
 
     private FilterType analyzerMassage(String messageText, long chatId) {
-        Rules rules = new Rules(db, chatId);
-        return Analyzer.analyze(messageText, rules.getRules());
+        return Analyzer.analyze(messageText, dataBaseManager.getRules(chatId));
     }
 
     private FilterType analyzerPhoto(List<PhotoSize> photo, long chatId) {
-        Rules rules = new Rules(db, chatId);
-        return Analyzer.analyze(photo, rules.getPhotoRules());
+        return Analyzer.analyze(photo, dataBaseManager.getPhotoRules(chatId));
     }
-
 }
 
