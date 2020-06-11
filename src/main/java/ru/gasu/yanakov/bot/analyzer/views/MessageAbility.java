@@ -1,7 +1,8 @@
 package ru.gasu.yanakov.bot.analyzer.views;
 
 import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.Analyzer;
-import ru.gasu.yanakov.bot.analyzer.models.DataBaseManager;
+import ru.gasu.yanakov.bot.analyzer.models.DBRulePhoto;
+import ru.gasu.yanakov.bot.analyzer.models.DBRuleText;
 import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
@@ -16,11 +17,14 @@ import java.util.List;
 public class MessageAbility implements AbilityExtension {
 
     private SilentSender silentSender;
-    private DataBaseManager dataBaseManager;
+    private DBRuleText dbRuleText;
+    private DBRulePhoto dbRulePhoto;
+    
 
     public MessageAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
-        dataBaseManager = new DataBaseManager(db);
+        dbRuleText = new DBRuleText(db);
+        dbRulePhoto = new DBRulePhoto(db);
     }
 
     // Анализ текстовых сообщений на нарушения правил
@@ -60,20 +64,21 @@ public class MessageAbility implements AbilityExtension {
         if (analyzer != FilterType.GOOD) {
             int messageId = update.getMessage().getMessageId();
 
+
             deleteMessage.setChatId(update.getMessage().getChatId());
             deleteMessage.setMessageId(messageId);
             silentSender.execute(deleteMessage);
-            silentSender.send("Message was deleted due to non-compliance. Cause: " + analyzer,
+            silentSender.send("The message sent by was deleted. Cause: " + analyzer,
                     update.getMessage().getChatId());
         }
     }
 
     private FilterType analyzerMassage(String messageText, long chatId) {
-        return Analyzer.analyze(messageText, dataBaseManager.getRules(chatId));
+        return Analyzer.analyze(messageText, dbRuleText.getRules(chatId));
     }
 
     private FilterType analyzerPhoto(List<PhotoSize> photo, long chatId) {
-        return Analyzer.analyze(photo, dataBaseManager.getPhotoRules(chatId));
+        return Analyzer.analyze(photo, dbRulePhoto.getPhotoRules(chatId));
     }
 }
 

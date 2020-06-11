@@ -6,16 +6,19 @@ import org.telegram.abilitybots.api.objects.Locality;
 import org.telegram.abilitybots.api.objects.Privacy;
 import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.AbilityExtension;
-import ru.gasu.yanakov.bot.analyzer.models.DataBaseManager;
+import ru.gasu.yanakov.bot.analyzer.models.DBRulePhoto;
+import ru.gasu.yanakov.bot.analyzer.models.DBRuleText;
 
 public class RulesAbility implements AbilityExtension {
 
     private SilentSender silentSender;
-    private DataBaseManager dataBaseManager;
+    private DBRuleText dbRuleText;
+    private DBRulePhoto dbRulePhoto;
 
     public RulesAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
-        dataBaseManager = new DataBaseManager(db);
+        dbRuleText = new DBRuleText(db);
+        dbRulePhoto = new DBRulePhoto(db);
     }
 
     // Инициализация правил
@@ -27,7 +30,8 @@ public class RulesAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    dataBaseManager.setDBRule(ctx.chatId());
+                    dbRuleText.setDBRule(ctx.chatId());
+                    dbRulePhoto.setDBRule(ctx.chatId());
                     silentSender.send("Rules created", ctx.chatId());
                 })
                 .build();
@@ -42,7 +46,12 @@ public class RulesAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    silentSender.send(dataBaseManager.getManualAllRules(ctx.chatId()), ctx.chatId());
+                    String manual;
+                    manual = "text:" + "\n" +
+                            dbRuleText.getManualAllRules(ctx.chatId()) + "\n" +
+                            "photo:" + "\n" +
+                            dbRulePhoto.getManualAllRules(ctx.chatId());
+                    silentSender.send(manual, ctx.chatId());
                 })
                 .build();
     }
@@ -56,7 +65,7 @@ public class RulesAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(1)
                 .action(ctx -> {
-                    dataBaseManager.addRulesCheckFindWordText(ctx.firstArg(), ctx.chatId());
+                    dbRuleText.addRulesCheckFindWordText(ctx.firstArg(), ctx.chatId());
                     silentSender.send("Rule added", ctx.chatId());
                 })
                 .build();
@@ -69,10 +78,20 @@ public class RulesAbility implements AbilityExtension {
                 .name("offrule")
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
-                .input(1)
+                .input(2)
                 .action(ctx -> {
-                    silentSender.send(dataBaseManager.switchRule(Integer.parseInt(ctx.firstArg()),
-                            false, ctx.chatId()), ctx.chatId());
+                    switch (ctx.firstArg()) {
+                        case "text":
+                            silentSender.send(dbRuleText.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    false, ctx.chatId()), ctx.chatId());
+                            break;
+                        case "photo":
+                            silentSender.send(dbRulePhoto.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    false, ctx.chatId()), ctx.chatId());
+                            break;
+                        default:
+                            silentSender.send("Not found rules", ctx.chatId());
+                    }
                 })
                 .build();
     }
@@ -83,10 +102,20 @@ public class RulesAbility implements AbilityExtension {
                 .name("onrule")
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
-                .input(1)
+                .input(2)
                 .action(ctx -> {
-                    silentSender.send(dataBaseManager.switchRule(Integer.parseInt(ctx.firstArg()),
-                            true, ctx.chatId()), ctx.chatId());
+                    switch (ctx.firstArg()) {
+                        case "text":
+                            silentSender.send(dbRuleText.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    true, ctx.chatId()), ctx.chatId());
+                            break;
+                        case "photo":
+                            silentSender.send(dbRulePhoto.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    true, ctx.chatId()), ctx.chatId());
+                            break;
+                        default:
+                            silentSender.send("Not found rules", ctx.chatId());
+                    }
                 })
                 .build();
     }
@@ -100,8 +129,23 @@ public class RulesAbility implements AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .input(0)
                 .action(ctx -> {
-                    dataBaseManager.remove(ctx.chatId());
+                    dbRuleText.remove(ctx.chatId());
+                    dbRulePhoto.remove(ctx.chatId());
                     silentSender.send("Rules cleared", ctx.chatId());
+                })
+                .build();
+    }
+
+    public Ability changeRuleLongText() {
+        return Ability
+                .builder()
+                .name("changelongtext")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    silentSender.send(dbRuleText.ChangeLongText(ctx.chatId(), Integer.parseInt(ctx.firstArg())),
+                            ctx.chatId());
                 })
                 .build();
     }
