@@ -8,17 +8,20 @@ import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.AbilityExtension;
 import ru.gasu.yanakov.bot.analyzer.models.DBRulePhoto;
 import ru.gasu.yanakov.bot.analyzer.models.DBRuleText;
+import ru.gasu.yanakov.bot.analyzer.models.DBRuleVideo;
 
 public class RulesAbility implements AbilityExtension {
 
     private SilentSender silentSender;
     private DBRuleText dbRuleText;
     private DBRulePhoto dbRulePhoto;
+    private DBRuleVideo dbRuleVideo;
 
     public RulesAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
         dbRuleText = new DBRuleText(db);
         dbRulePhoto = new DBRulePhoto(db);
+        dbRuleVideo = new DBRuleVideo(db);
     }
 
     // Инициализация правил
@@ -32,6 +35,7 @@ public class RulesAbility implements AbilityExtension {
                 .action(ctx -> {
                     dbRuleText.setDBRule(ctx.chatId());
                     dbRulePhoto.setDBRule(ctx.chatId());
+                    dbRuleVideo.setDBRule(ctx.chatId());
                     silentSender.send("Rules created", ctx.chatId());
                 })
                 .build();
@@ -50,7 +54,9 @@ public class RulesAbility implements AbilityExtension {
                     manual = "text:" + "\n" +
                             dbRuleText.getManualAllRules(ctx.chatId()) + "\n" +
                             "photo:" + "\n" +
-                            dbRulePhoto.getManualAllRules(ctx.chatId());
+                            dbRulePhoto.getManualAllRules(ctx.chatId()) + "\n" +
+                            "video:" + "\n" +
+                            dbRuleVideo.getManualAllRules(ctx.chatId());
                     silentSender.send(manual, ctx.chatId());
                 })
                 .build();
@@ -89,6 +95,10 @@ public class RulesAbility implements AbilityExtension {
                             silentSender.send(dbRulePhoto.switchRule(Integer.parseInt(ctx.secondArg()),
                                     false, ctx.chatId()), ctx.chatId());
                             break;
+                        case "video":
+                            silentSender.send(dbRuleVideo.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    false, ctx.chatId()), ctx.chatId());
+                            break;
                         default:
                             silentSender.send("Not found rules", ctx.chatId());
                     }
@@ -113,6 +123,10 @@ public class RulesAbility implements AbilityExtension {
                             silentSender.send(dbRulePhoto.switchRule(Integer.parseInt(ctx.secondArg()),
                                     true, ctx.chatId()), ctx.chatId());
                             break;
+                        case "video":
+                            silentSender.send(dbRuleVideo.switchRule(Integer.parseInt(ctx.secondArg()),
+                                    true, ctx.chatId()), ctx.chatId());
+                            break;
                         default:
                             silentSender.send("Not found rules", ctx.chatId());
                     }
@@ -131,6 +145,7 @@ public class RulesAbility implements AbilityExtension {
                 .action(ctx -> {
                     dbRuleText.remove(ctx.chatId());
                     dbRulePhoto.remove(ctx.chatId());
+                    dbRuleVideo.remove(ctx.chatId());
                     silentSender.send("Rules cleared", ctx.chatId());
                 })
                 .build();

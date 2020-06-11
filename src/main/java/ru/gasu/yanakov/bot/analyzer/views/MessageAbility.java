@@ -1,8 +1,10 @@
 package ru.gasu.yanakov.bot.analyzer.views;
 
+import org.telegram.telegrambots.meta.api.objects.Video;
 import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.Analyzer;
 import ru.gasu.yanakov.bot.analyzer.models.DBRulePhoto;
 import ru.gasu.yanakov.bot.analyzer.models.DBRuleText;
+import ru.gasu.yanakov.bot.analyzer.models.DBRuleVideo;
 import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.*;
@@ -19,12 +21,14 @@ public class MessageAbility implements AbilityExtension {
     private SilentSender silentSender;
     private DBRuleText dbRuleText;
     private DBRulePhoto dbRulePhoto;
-    
+    private DBRuleVideo dbRuleVideo;
+
 
     public MessageAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
         dbRuleText = new DBRuleText(db);
         dbRulePhoto = new DBRulePhoto(db);
+        dbRuleVideo = new DBRuleVideo(db);
     }
 
     // Анализ текстовых сообщений на нарушения правил
@@ -45,7 +49,9 @@ public class MessageAbility implements AbilityExtension {
                     FilterType analyzerMessage = analyzerMassage(messageText, update.getMessage().getChatId());
                     deleteMessage(update, analyzerMessage);
                 }, Flag.MESSAGE,
-                update -> !update.getMessage().hasPhoto() && update.getMessage().getText().contains("https"));
+                    update -> !update.getMessage().hasPhoto() &&
+                            !update.getMessage().hasVideo() &&
+                            update.getMessage().getText().contains("https"));
     }
 
     // Анализ фото на нарушения правил
@@ -56,6 +62,18 @@ public class MessageAbility implements AbilityExtension {
             deleteMessage(update, analyzerPhoto);
         }, Flag.PHOTO);
     }
+
+    // Анализ видео на нарушения правил
+    public Reply video() {
+        return Reply.of(update -> {
+            Video video = update.getMessage().getVideo();
+            FilterType analyzerVideo = analyzerVideo(video, update.getMessage().getChatId());
+            deleteMessage(update, analyzerVideo);
+        }, Flag.MESSAGE,
+                update -> update.getMessage().hasVideo());
+    }
+
+
 
     // Метод по удаления сообщения
     private void deleteMessage(Update update, FilterType analyzer) {
@@ -79,6 +97,10 @@ public class MessageAbility implements AbilityExtension {
 
     private FilterType analyzerPhoto(List<PhotoSize> photo, long chatId) {
         return Analyzer.analyze(photo, dbRulePhoto.getPhotoRules(chatId));
+    }
+
+    private FilterType analyzerVideo(Video video, long chatId) {
+        return Analyzer.analyze(video, dbRuleVideo.getVideoRules(chatId));
     }
 }
 

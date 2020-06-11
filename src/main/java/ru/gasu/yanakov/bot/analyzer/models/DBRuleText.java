@@ -78,11 +78,11 @@ public class DBRuleText implements DBManager {
                 if (status) {
                     rules.getValue().onRule();
                     rulesChat.put(chatId, listRuleText);
-                    return "Rile enabled";
+                    return "Rule enabled";
                 } else {
                     rules.getValue().offRule();
                     rulesChat.put(chatId, listRuleText);
-                    return "Rile disabled";
+                    return "Rule disabled";
                 }
             }
             i++;

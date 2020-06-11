@@ -54,11 +54,11 @@ public class DBRulePhoto implements DBManager {
                 if (status) {
                     rules.getValue().onRule();
                     rulesChatPhoto.put(chatId, listRulePhoto);
-                    return "Rile enabled";
+                    return "Rule enabled";
                 } else {
                     rules.getValue().offRule();
                     rulesChatPhoto.put(chatId, listRulePhoto);
-                    return "Rile disabled";
+                    return "Rule disabled";
                 }
             }
             i++;

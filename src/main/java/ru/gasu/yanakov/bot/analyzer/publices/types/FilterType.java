@@ -7,6 +7,7 @@ public enum FilterType {
     FORBIDDEN_WORD,
     PHOTO_SIZE,
     PHOTO_FILE_SIZE,
+    VIDEO_DURATIONS,
     GOOD
 }
 
