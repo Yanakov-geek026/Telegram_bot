@@ -2,6 +2,7 @@ package ru.gasu.yanakov.bot.analyzer.models;
 
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import ru.gasu.yanakov.bot.analyzer.controllers.check.photo.CheckFileSizePhoto;
 import ru.gasu.yanakov.bot.analyzer.controllers.check.photo.CheckSizePhoto;
 import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
 import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
@@ -87,6 +88,7 @@ public class DBRulePhoto implements DBManager {
     private Map<String, ControlRules<List<PhotoSize>>> createRulesPhoto() {
         Map<String, ControlRules<List<PhotoSize>>> rules = new HashMap<>();
         rules.put(UUID.randomUUID().toString(), new CheckSizePhoto(800, 100));
+        rules.put(UUID.randomUUID().toString(), new CheckFileSizePhoto(1));
 
         return rules;
     }

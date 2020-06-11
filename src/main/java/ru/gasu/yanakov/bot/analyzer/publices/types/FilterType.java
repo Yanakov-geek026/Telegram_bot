@@ -6,6 +6,7 @@ public enum FilterType {
     REPOST_LINK,
     FORBIDDEN_WORD,
     PHOTO_SIZE,
+    PHOTO_FILE_SIZE,
     GOOD
 }
 
