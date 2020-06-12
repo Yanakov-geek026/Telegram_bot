@@ -182,4 +182,51 @@ public class RulesAbility implements AbilityExtension {
                 })
                 .build();
     }
+
+    // Изменение правил на размер отправляемых фото
+    public Ability changeRuleSizeFilePhoto() {
+        return Ability
+                .builder()
+                .name("changesizefilephoto")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    silentSender.send(dbRulePhoto.ChangeSizeFilePhoto(ctx.chatId(), Integer.parseInt(ctx.firstArg())),
+                            ctx.chatId());
+                })
+                .build();
+    }
+
+    // Изменение правил на габариты отправляемых видео
+    public Ability changeRuleSizeVideo() {
+        return Ability
+                .builder()
+                .name("changesizevideo")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(2)
+                .action(ctx -> {
+                    silentSender.send(dbRuleVideo.ChangeSizeVideo(ctx.chatId(),
+                            Integer.parseInt(ctx.firstArg()),
+                            Integer.parseInt(ctx.secondArg())),
+                            ctx.chatId());
+                })
+                .build();
+    }
+
+    // Изменение правил на размер отправляемых видео
+    public Ability changeRuleSizeFileVideo() {
+        return Ability
+                .builder()
+                .name("changesizefilevideo")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(1)
+                .action(ctx -> {
+                    silentSender.send(dbRuleVideo.ChangeSizeFileVideo(ctx.chatId(), Integer.parseInt(ctx.firstArg())),
+                            ctx.chatId());
+                })
+                .build();
+    }
 }

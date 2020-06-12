@@ -76,8 +76,6 @@ public class MessageAbility implements AbilityExtension {
                 update -> update.getMessage().hasVideo());
     }
 
-
-
     // Метод по удаления сообщения
     private void deleteMessage(Update update, FilterType analyzer) {
         DeleteMessage deleteMessage = new DeleteMessage();
@@ -98,12 +96,12 @@ public class MessageAbility implements AbilityExtension {
         return Analyzer.analyze(messageText, dbRuleText.getRules(chatId));
     }
 
-    private FilterType analyzerPhoto(List<PhotoSize> photo, long chatId) {
-        return Analyzer.analyze(photo, dbRulePhoto.getPhotoRules(chatId));
+    private FilterType analyzerPhoto(List<PhotoSize> photo, Long chatId) {
+        return Analyzer.analyze(photo, dbRulePhoto.getRules(chatId));
     }
 
-    private FilterType analyzerVideo(Video video, long chatId) {
-        return Analyzer.analyze(video, dbRuleVideo.getVideoRules(chatId));
+    private FilterType analyzerVideo(Video video, Long chatId) {
+        return Analyzer.analyze(video, dbRuleVideo.getRules(chatId));
     }
 }
 

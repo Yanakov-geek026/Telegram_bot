@@ -1,18 +1,15 @@
 package ru.gasu.yanakov.bot.analyzer.models;
 
-import ru.gasu.yanakov.bot.analyzer.controllers.check.photo.CheckSizePhoto;
 import ru.gasu.yanakov.bot.analyzer.controllers.interfaces.ControlRules;
 import ru.gasu.yanakov.bot.analyzer.controllers.check.text.*;
 import org.telegram.abilitybots.api.db.DBContext;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class DBRuleText implements DBManager {
+public class DBRuleText implements DBManager<String> {
 
     private Map<Long, Map<String, ControlRules<String>>> rulesChat;
     private static DBRuleText dbRuleText;
@@ -30,14 +27,9 @@ public class DBRuleText implements DBManager {
 
     public String ChangeLongText(long chatId, int newTextSize) {
         Map<String, ControlRules<String>> listRuleText = rulesChat.get(chatId);
-        for (Map.Entry<String, ControlRules<String>> rules : listRuleText.entrySet()) {
-            if (rules.getValue().getFilterType() == FilterType.LONG_TEXT) {
-                listRuleText.put(rules.getKey(), new CheckLongText(newTextSize));
-                rulesChat.put(chatId, listRuleText);
-                return "Text length has been changed to " + newTextSize + " letters";
-            }
-        }
-        return "Rule not found";
+        listRuleText.put(DBManager.getIDRuleFromDB(listRuleText, FilterType.LONG_TEXT), new CheckLongText(newTextSize));
+        rulesChat.put(chatId, listRuleText);
+        return "Text length has been changed to " + newTextSize + " letters";
     }
 
     @Override
@@ -45,6 +37,11 @@ public class DBRuleText implements DBManager {
         if (rulesChat.isEmpty() || !rulesChat.containsKey(chatId)) {
             rulesChat.put(chatId, createRulesText());
         }
+    }
+
+    @Override
+    public Map<String, ControlRules<String>> getRules(long chatId) {
+        return rulesChat.get(chatId);
     }
 
     // Инициализация стандартных текстовых правил для чата
@@ -55,10 +52,6 @@ public class DBRuleText implements DBManager {
         rules.put(UUID.randomUUID().toString(), new CheckLinkText());
 
         return rules;
-    }
-
-    public Map<String, ControlRules<String>> getRules(long chatId) {
-        return rulesChat.get(chatId);
     }
 
     @Override

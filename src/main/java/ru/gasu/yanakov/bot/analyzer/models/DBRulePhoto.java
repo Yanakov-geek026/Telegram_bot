@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class DBRulePhoto implements DBManager {
+public class DBRulePhoto implements DBManager<List<PhotoSize>> {
 
     private Map<Long, Map<String, ControlRules<List<PhotoSize>>>> rulesChatPhoto;
     private static DBRulePhoto dbRulePhoto;
@@ -30,30 +30,16 @@ public class DBRulePhoto implements DBManager {
 
     public String ChangeSizePhoto(long chatId, int width, int height) {
         Map<String, ControlRules<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
-        for (Map.Entry<String, ControlRules<List<PhotoSize>>> rules : listRulePhoto.entrySet()) {
-            if (rules.getValue().getFilterType() == FilterType.PHOTO_SIZE) {
-                listRulePhoto.put(rules.getKey(), new CheckSizePhoto(width, height));
-                rulesChatPhoto.put(chatId, listRulePhoto);
-                return "Photo size has been changed to " + width + "x" + height + " pixels";
-            }
-        }
-        return "Rule not found";
+        listRulePhoto.put(DBManager.getIDRuleFromDB(listRulePhoto, FilterType.PHOTO_SIZE), new CheckSizePhoto(width, height));
+        rulesChatPhoto.put(chatId, listRulePhoto);
+        return "Photo size has been changed to " + width + "x" + height + " pixels";
     }
 
-    public String ChangeSizePhoto(long chatId, int fileSizePhoto) {
+    public String ChangeSizeFilePhoto(long chatId, int fileSizePhoto) {
         Map<String, ControlRules<List<PhotoSize>>> listRulePhoto = rulesChatPhoto.get(chatId);
-        for (Map.Entry<String, ControlRules<List<PhotoSize>>> rules : listRulePhoto.entrySet()) {
-            if (rules.getValue().getFilterType() == FilterType.PHOTO_FILE_SIZE) {
-                listRulePhoto.put(rules.getKey(), new CheckFileSizePhoto(fileSizePhoto));
-                rulesChatPhoto.put(chatId, listRulePhoto);
-                return "Photo file size has been changed to " + fileSizePhoto + " mb";
-            }
-        }
-        return "Rule not found";
-    }
-
-    public Map<String, ControlRules<List<PhotoSize>>> getPhotoRules(long chatId) {
-        return rulesChatPhoto.get(chatId);
+        listRulePhoto.put(DBManager.getIDRuleFromDB(listRulePhoto, FilterType.PHOTO_FILE_SIZE), new CheckFileSizePhoto(fileSizePhoto));
+        rulesChatPhoto.put(chatId, listRulePhoto);
+        return "Photo file size has been changed to " + fileSizePhoto + " mb";
     }
 
     @Override
@@ -98,6 +84,11 @@ public class DBRulePhoto implements DBManager {
         if (rulesChatPhoto.isEmpty() || !rulesChatPhoto.containsKey(chatId)) {
             rulesChatPhoto.put(chatId, createRulesPhoto());
         }
+    }
+
+    @Override
+    public Map<String, ControlRules<List<PhotoSize>>> getRules(long chatId) {
+        return rulesChatPhoto.get(chatId);
     }
 
     // Инициализация стандартных правил на фото для чата
