@@ -1,6 +1,7 @@
 package ru.gasu.yanakov.bot.analyzer.models;
 
 import org.telegram.abilitybots.api.db.DBContext;
+import ru.gasu.yanakov.bot.analyzer.publices.types.FilterType;
 
 public interface DBManager {
 

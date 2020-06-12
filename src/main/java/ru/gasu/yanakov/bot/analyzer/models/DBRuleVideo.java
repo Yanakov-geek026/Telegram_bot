@@ -12,12 +12,16 @@ import java.util.UUID;
 public class DBRuleVideo implements DBManager {
 
     private Map<Long, Map<String, ControlRules<Video>>> rulesChatVideo;
+    private static DBRuleVideo dbRuleVideo;
 
-    public DBRuleVideo(DBContext db) {
-        DBRules(db);
+    public static DBRuleVideo getDbRuleVideo (DBContext db) {
+        if (dbRuleVideo == null) {
+            dbRuleVideo = new DBRuleVideo(db);
+        }
+        return dbRuleVideo;
     }
 
-    private void DBRules(DBContext db) {
+    private DBRuleVideo(DBContext db) {
         rulesChatVideo = db.getMap("ChatRulesVideoNew");
     }
 

@@ -23,18 +23,18 @@ public class MessageAbility implements AbilityExtension {
     private DBRulePhoto dbRulePhoto;
     private DBRuleVideo dbRuleVideo;
 
-
     public MessageAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
-        dbRuleText = new DBRuleText(db);
-        dbRulePhoto = new DBRulePhoto(db);
-        dbRuleVideo = new DBRuleVideo(db);
+        dbRuleText = DBRuleText.getDbRuleText(db);
+        dbRulePhoto = DBRulePhoto.getDbRulePhoto(db);
+        dbRuleVideo = DBRuleVideo.getDbRuleVideo(db);
     }
 
     // Анализ текстовых сообщений на нарушения правил
     public Reply message() {
         return Reply.of( update -> {
                     String messageText = update.getMessage().getText();
+                    dbRuleText.setDBRule(update.getMessage().getChatId());
                     FilterType analyzerMessage = analyzerMassage(messageText, update.getMessage().getChatId());
                     deleteMessage(update, analyzerMessage);
 
@@ -46,6 +46,7 @@ public class MessageAbility implements AbilityExtension {
     public Reply messageLink() {
         return Reply.of(update -> {
                     String messageText = update.getMessage().getText();
+                    dbRuleText.setDBRule(update.getMessage().getChatId());
                     FilterType analyzerMessage = analyzerMassage(messageText, update.getMessage().getChatId());
                     deleteMessage(update, analyzerMessage);
                 }, Flag.MESSAGE,
@@ -58,6 +59,7 @@ public class MessageAbility implements AbilityExtension {
     public Reply photo() {
         return Reply.of(update -> {
             List<PhotoSize> photo = update.getMessage().getPhoto();
+            dbRulePhoto.setDBRule(update.getMessage().getChatId());
             FilterType analyzerPhoto = analyzerPhoto(photo, update.getMessage().getChatId());
             deleteMessage(update, analyzerPhoto);
         }, Flag.PHOTO);
@@ -67,6 +69,7 @@ public class MessageAbility implements AbilityExtension {
     public Reply video() {
         return Reply.of(update -> {
             Video video = update.getMessage().getVideo();
+            dbRuleVideo.setDBRule(update.getMessage().getChatId());
             FilterType analyzerVideo = analyzerVideo(video, update.getMessage().getChatId());
             deleteMessage(update, analyzerVideo);
         }, Flag.MESSAGE,

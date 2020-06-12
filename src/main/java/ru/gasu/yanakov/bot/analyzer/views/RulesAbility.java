@@ -19,9 +19,9 @@ public class RulesAbility implements AbilityExtension {
 
     public RulesAbility(SilentSender silentSender, DBContext db) {
         this.silentSender = silentSender;
-        dbRuleText = new DBRuleText(db);
-        dbRulePhoto = new DBRulePhoto(db);
-        dbRuleVideo = new DBRuleVideo(db);
+        dbRuleText = DBRuleText.getDbRuleText(db);
+        dbRulePhoto = DBRulePhoto.getDbRulePhoto(db);
+        dbRuleVideo = DBRuleVideo.getDbRuleVideo(db);
     }
 
     // Инициализация правил
@@ -151,6 +151,7 @@ public class RulesAbility implements AbilityExtension {
                 .build();
     }
 
+    // Изменение правила на максимальный размер текста в сообщение
     public Ability changeRuleLongText() {
         return Ability
                 .builder()
@@ -160,6 +161,23 @@ public class RulesAbility implements AbilityExtension {
                 .input(1)
                 .action(ctx -> {
                     silentSender.send(dbRuleText.ChangeLongText(ctx.chatId(), Integer.parseInt(ctx.firstArg())),
+                            ctx.chatId());
+                })
+                .build();
+    }
+
+    // Изменение правил на габариты отправляемых фото
+    public Ability changeRuleSizePhoto() {
+        return Ability
+                .builder()
+                .name("changesizephoto")
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .input(2)
+                .action(ctx -> {
+                    silentSender.send(dbRulePhoto.ChangeSizePhoto(ctx.chatId(),
+                            Integer.parseInt(ctx.firstArg()),
+                            Integer.parseInt(ctx.secondArg())),
                             ctx.chatId());
                 })
                 .build();

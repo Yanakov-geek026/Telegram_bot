@@ -15,12 +15,16 @@ import java.util.UUID;
 public class DBRuleText implements DBManager {
 
     private Map<Long, Map<String, ControlRules<String>>> rulesChat;
+    private static DBRuleText dbRuleText;
 
-    public DBRuleText(DBContext db) {
-        DBRules(db);
+    public static DBRuleText getDbRuleText(DBContext db) {
+        if (dbRuleText == null) {
+            dbRuleText = new DBRuleText(db);
+        }
+        return dbRuleText;
     }
 
-    private void DBRules(DBContext db) {
+    private DBRuleText(DBContext db) {
         rulesChat = db.getMap("ChatRulesNew");
     }
 
